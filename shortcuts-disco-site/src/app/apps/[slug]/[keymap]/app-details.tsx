@@ -42,6 +42,12 @@ import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { useAuth } from "@/components/auth/auth-provider";
 import { cn } from "@/lib/utils";
 import { usePreferences } from "@/lib/hooks/use-preferences";
+import { withBaseShortcutIdentities } from "@/lib/catalog-identities";
+import {
+  MAX_COLUMNS,
+  MIN_COLUMNS,
+  type ViewMode,
+} from "@/lib/storage/preferences-store";
 import { useFavorites } from "@/lib/hooks/use-favorites";
 import { useCustomizations } from "@/lib/hooks/use-customizations";
 import { ShortcutMerger } from "@/lib/services/shortcut-merger";
@@ -75,7 +81,6 @@ import {
   USER_CONTENT_LIMITS,
 } from "@/lib/validation/user-content";
 
-type ViewMode = "list" | "cheatsheet";
 type DisplayShortcut = Keymap["sections"][number]["hotkeys"][number] & {
   favoriteSourceSectionTitle?: string;
 };
@@ -110,12 +115,8 @@ type DeleteShortcutDialogState = {
   title: string;
 };
 
-const VIEW_MODE_STORAGE_KEY = "shortcuts-view-mode";
-const COLUMN_COUNT_STORAGE_KEY = "shortcuts-column-count";
 const FAVORITE_SHORTCUTS_SECTION_TITLE = "Favorite shortcuts";
 const DEFAULT_COLUMNS = 4;
-const MIN_COLUMNS = 1;
-const MAX_COLUMNS = 6;
 const MIN_COLUMN_WIDTH = 288;
 const NEW_SECTION_VALUE = "__new_section__";
 const emptyShortcutDraft: ShortcutDraft = {
@@ -129,28 +130,11 @@ function parseViewMode(value: string | null): ViewMode | null {
   return null;
 }
 
-function getStoredViewMode(): ViewMode {
-  if (typeof window === "undefined") return "list";
-  const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
-  return stored === "cheatsheet" ? "cheatsheet" : "list";
-}
-
 function parseColumnCount(value: string | null): number | null {
   if (value === null) return null;
   const num = parseInt(value, 10);
   if (isNaN(num) || num < MIN_COLUMNS || num > MAX_COLUMNS) return null;
   return num;
-}
-
-function normalizeColumnCount(value: number): number {
-  return Math.min(MAX_COLUMNS, Math.max(MIN_COLUMNS, value));
-}
-
-function getStoredColumnCount(): number {
-  if (typeof window === "undefined") return DEFAULT_COLUMNS;
-  const stored = localStorage.getItem(COLUMN_COUNT_STORAGE_KEY);
-  const parsed = parseColumnCount(stored);
-  return parsed ?? DEFAULT_COLUMNS;
 }
 
 export const AppDetails = ({
@@ -164,11 +148,7 @@ export const AppDetails = ({
   const { favorites } = useFavorites();
   const { customizations, refetch: refetchCustomizations } =
     useCustomizations();
-  const {
-    preferences,
-    isLoading: preferencesLoading,
-    updatePreferences,
-  } = usePreferences();
+  const { preferences, updatePreferences } = usePreferences();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -187,19 +167,27 @@ export const AppDetails = ({
     );
   }, [application, customizations, user]);
   const customKeymapId = searchParams.get("keymap");
+  // Favorites are saved by each row's frozen base identity, which the merger
+  // only adds when merging; add it for plain catalog rows too.
+  const identifiedApplication = useMemo(
+    () => withBaseShortcutIdentities([mergedApplication])[0],
+    [mergedApplication],
+  );
   const displayKeymap = useMemo(
     () =>
-      mergedApplication.keymaps.find((mergedKeymap) =>
+      identifiedApplication.keymaps.find((mergedKeymap) =>
         customKeymapId
           ? mergedKeymap.customKeymapId === customKeymapId
           : mergedKeymap.title === keymap.title,
-      ) ?? keymap,
-    [keymap, mergedApplication, customKeymapId],
+      ) ??
+      withBaseShortcutIdentities([{ ...application, keymaps: [keymap] }])[0]
+        .keymaps[0],
+    [keymap, application, identifiedApplication, customKeymapId],
   );
 
-  const [viewMode, setViewModeState] = useState<ViewMode>("list");
-  const [userColumnCount, setUserColumnCountState] =
-    useState<number>(DEFAULT_COLUMNS);
+  // A URL parameter wins over the saved preference without replacing it.
+  const viewMode: ViewMode = urlViewMode ?? preferences.viewMode;
+  const userColumnCount = urlColumnCount ?? preferences.columnCount;
   const [maxColumns, setMaxColumns] = useState<number>(MAX_COLUMNS);
   const cheatsheetContainerRef = useRef<HTMLDivElement>(null);
   const [shortcutDialog, setShortcutDialog] =
@@ -218,24 +206,6 @@ export const AppDetails = ({
   const [isDeletingShortcut, setIsDeletingShortcut] = useState(false);
 
   const effectiveColumnCount = Math.min(userColumnCount, maxColumns);
-
-  useEffect(() => {
-    const effectiveMode =
-      urlViewMode ??
-      (user && !preferencesLoading
-        ? preferences.viewMode
-        : getStoredViewMode());
-    setViewModeState(effectiveMode);
-  }, [urlViewMode, user, preferencesLoading, preferences.viewMode]);
-
-  useEffect(() => {
-    const effectiveCols =
-      urlColumnCount ??
-      (user && !preferencesLoading
-        ? normalizeColumnCount(preferences.columnCount)
-        : getStoredColumnCount());
-    setUserColumnCountState(effectiveCols);
-  }, [urlColumnCount, user, preferencesLoading, preferences.columnCount]);
 
   useEffect(() => {
     if (viewMode !== "cheatsheet") return;
@@ -260,13 +230,7 @@ export const AppDetails = ({
   }, [viewMode]);
 
   const setViewMode = (newMode: ViewMode) => {
-    setViewModeState(newMode);
-    localStorage.setItem(VIEW_MODE_STORAGE_KEY, newMode);
-    if (user && !preferencesLoading) {
-      void updatePreferences({ viewMode: newMode }).catch((error) => {
-        console.error("Failed to save view preference:", error);
-      });
-    }
+    void updatePreferences({ viewMode: newMode });
 
     const params = new URLSearchParams(searchParams.toString());
     if (newMode === "list") {
@@ -281,13 +245,7 @@ export const AppDetails = ({
   };
 
   const setColumnCount = (newCount: number) => {
-    setUserColumnCountState(newCount);
-    localStorage.setItem(COLUMN_COUNT_STORAGE_KEY, String(newCount));
-    if (user && !preferencesLoading) {
-      void updatePreferences({ columnCount: newCount }).catch((error) => {
-        console.error("Failed to save column preference:", error);
-      });
-    }
+    void updatePreferences({ columnCount: newCount });
 
     const params = new URLSearchParams(searchParams.toString());
     if (newCount === DEFAULT_COLUMNS) {
@@ -336,27 +294,25 @@ export const AppDetails = ({
     0,
   );
 
-  const favoriteShortcutItems = user
-    ? searchResults.flatMap((section) =>
-        section.hotkeys
-          .filter((shortcut) =>
-            favorites.some((favorite) =>
-              matchesFavorite(favorite, {
-                itemType: "shortcut",
-                appSlug: mergedApplication.slug,
-                keymapTitle: displayKeymap.title,
-                customKeymapId: displayKeymap.customKeymapId,
-                sectionTitle: shortcut.baseSectionTitle ?? section.title,
-                shortcutTitle: shortcut.baseShortcutTitle ?? shortcut.title,
-                baseShortcutId: shortcut.baseShortcutId,
-                baseShortcutAliases: shortcut.baseShortcutAliases,
-                customShortcutId: shortcut.customShortcutId,
-              }),
-            ),
-          )
-          .map((shortcut) => ({ sectionTitle: section.title, shortcut })),
+  const favoriteShortcutItems = searchResults.flatMap((section) =>
+    section.hotkeys
+      .filter((shortcut) =>
+        favorites.some((favorite) =>
+          matchesFavorite(favorite, {
+            itemType: "shortcut",
+            appSlug: mergedApplication.slug,
+            keymapTitle: displayKeymap.title,
+            customKeymapId: displayKeymap.customKeymapId,
+            sectionTitle: shortcut.baseSectionTitle ?? section.title,
+            shortcutTitle: shortcut.baseShortcutTitle ?? shortcut.title,
+            baseShortcutId: shortcut.baseShortcutId,
+            baseShortcutAliases: shortcut.baseShortcutAliases,
+            customShortcutId: shortcut.customShortcutId,
+          }),
+        ),
       )
-    : [];
+      .map((shortcut) => ({ sectionTitle: section.title, shortcut })),
+  );
 
   const favoriteShortcutsSection: DisplaySection | null =
     favoriteShortcutItems.length > 0

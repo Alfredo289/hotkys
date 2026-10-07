@@ -16,8 +16,6 @@ import { usePlatformFilter } from "@/lib/hooks/use-platform-filter";
 import { usePlatform } from "@/lib/hooks/use-platform";
 import { useMergedShortcuts } from "@/lib/hooks/use-merged-shortcuts";
 import { useFavorites } from "@/lib/hooks/use-favorites";
-import { useAuth } from "@/components/auth/auth-provider";
-import { getLoginHref } from "@/lib/auth/redirect";
 import { serializeKeymap } from "@/lib/model/keymap-utils";
 import {
   getAppPlatforms,
@@ -61,7 +59,6 @@ export function ApplicationList({
   const userPlatform = usePlatform();
   const { platformFilter, setPlatformFilter } = usePlatformFilter();
   const { applications: mergedApplications } = useMergedShortcuts(applications);
-  const { user, isLoading: authLoading } = useAuth();
   const { favorites, isLoading: favoritesLoading } = useFavorites();
 
   const filteredByPlatform = useMemo(
@@ -85,10 +82,7 @@ export function ApplicationList({
   const favoriteApps = mergedApplications.filter((app) =>
     favorites.some(
       (favorite) =>
-        favorite.itemType === "app" &&
-        (favorite.customAppId
-          ? favorite.customAppId === app.customAppId
-          : favorite.appSlug === app.slug),
+        favorite.itemType === "app" && favorite.appSlug === app.slug,
     ),
   );
   const { selectedIndex, itemRefs, scopeRef } = useKeyboardNavigation(
@@ -116,17 +110,15 @@ export function ApplicationList({
               Your favorites, within reach.
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {user
-                ? "Your saved apps and shortcuts, all in one place."
-                : "Save the apps you use most. Build your own shortcut collection."}
+              Your saved apps and shortcuts, all in one place.
             </p>
           </div>
         </div>
-        {authLoading || (user && favoritesLoading) ? (
+        {favoritesLoading ? (
           <p role="status" className="text-sm text-muted-foreground">
             Loading your favorites…
           </p>
-        ) : user ? (
+        ) : (
           <div className="flex flex-wrap items-center gap-2">
             {favoriteApps.slice(0, 3).map((app) => (
               <Link
@@ -150,17 +142,6 @@ export function ApplicationList({
               </Link>
             </Button>
           </div>
-        ) : (
-          <Button
-            asChild
-            variant="outline"
-            className="shrink-0 self-start rounded-xl lg:self-auto"
-          >
-            <Link href={getLoginHref("/")}>
-              Sign in to save favorites{" "}
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
-          </Button>
         )}
       </section>
 
@@ -317,7 +298,6 @@ export function ApplicationList({
                     <FavoriteButton
                       itemType="app"
                       appSlug={app.slug}
-                      showSignIn
                       className="absolute top-5 right-4 rounded-lg text-muted-foreground"
                     />
                   )}

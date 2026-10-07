@@ -17,7 +17,6 @@ import { getLoginHref } from "@/lib/auth/redirect";
 import { useCustomizations } from "@/lib/hooks/use-customizations";
 import { customizationsService } from "@/lib/services/customizations-service";
 import { privateAppsService } from "@/lib/services/private-apps-service";
-import { useFavorites } from "@/lib/hooks/use-favorites";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { PrivateContentActions } from "@/components/shortcuts/private-content-actions";
 import { ShortcutMerger } from "@/lib/services/shortcut-merger";
@@ -89,7 +88,6 @@ export function MyShortcutAppContent({
     refetch,
   } = useCustomizations();
   const app = customizations.customApps.find((a) => a.slug === slug);
-  const { refetch: refetchFavorites } = useFavorites();
   const [selectedKeymapId, setSelectedKeymapId] = useState<string>(
     keymapId ?? "",
   );
@@ -176,7 +174,7 @@ export function MyShortcutAppContent({
           className="mt-5 rounded-xl"
           onClick={async () => {
             try {
-              await Promise.all([refetch(), refetchFavorites()]);
+              await refetch();
               setError(null);
             } catch {}
           }}
@@ -210,7 +208,7 @@ export function MyShortcutAppContent({
         (a, b) => a.sortOrder - b.sortOrder,
       ),
     }));
-  const reload = () => Promise.all([refetch(), refetchFavorites()]);
+  const reload = () => refetch();
   const runMutation = async (
     mutate: () => Promise<unknown>,
     afterSave?: () => void,

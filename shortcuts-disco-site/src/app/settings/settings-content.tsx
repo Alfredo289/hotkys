@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { AccountPage } from "@/components/auth/account-page";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -18,23 +18,10 @@ const PLATFORMS: { value: Platform | null; label: string }[] = [
 ];
 export function SettingsContent() {
   const { user, isLoading: authLoading } = useAuth();
-  const {
-    preferences,
-    isLoading,
-    error: syncError,
-    updatePreferences,
-  } = usePreferences();
+  const { preferences, isLoading, updatePreferences } = usePreferences();
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const previousSyncError = useRef(syncError);
-  useEffect(() => {
-    if (previousSyncError.current && !syncError) {
-      setError(null);
-      setNotice("Preferences saved.");
-    }
-    previousSyncError.current = syncError;
-  }, [syncError]);
   const save = async (patch: Partial<UserPreferences>) => {
     if (saving) return;
     setSaving(true);
@@ -76,7 +63,7 @@ export function SettingsContent() {
         </div>
       ) : (
         <div className="divide-y rounded-2xl border bg-card px-6 sm:px-8">
-          <fieldset disabled={saving || !!syncError} className="py-7">
+          <fieldset disabled={saving} className="py-7">
             <legend className="sr-only">Default platform</legend>
             <h2 className="text-lg font-semibold tracking-tight">
               Your platform
@@ -103,7 +90,7 @@ export function SettingsContent() {
               ))}
             </div>
           </fieldset>
-          <fieldset disabled={saving || !!syncError} className="py-7">
+          <fieldset disabled={saving} className="py-7">
             <legend className="sr-only">Default view</legend>
             <h2 className="text-lg font-semibold tracking-tight">
               Your preferred view
@@ -141,7 +128,7 @@ export function SettingsContent() {
               ))}
             </div>
           </fieldset>
-          <fieldset disabled={saving || !!syncError} className="py-7">
+          <fieldset disabled={saving} className="py-7">
             <legend className="sr-only">Cheatsheet columns</legend>
             <h2 className="text-lg font-semibold tracking-tight">
               Cheatsheet columns
@@ -169,15 +156,10 @@ export function SettingsContent() {
           </fieldset>
           <div className="py-5 text-sm">
             <p
-              role={error || syncError ? "alert" : "status"}
-              className={
-                error || syncError
-                  ? "text-destructive"
-                  : "text-muted-foreground"
-              }
+              role={error ? "alert" : "status"}
+              className={error ? "text-destructive" : "text-muted-foreground"}
             >
               {error ??
-                syncError ??
                 (saving
                   ? "Saving preferences…"
                   : notice || "Changes save automatically.")}

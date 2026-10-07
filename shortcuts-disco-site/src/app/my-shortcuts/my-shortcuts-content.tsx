@@ -16,7 +16,6 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { getLoginHref } from "@/lib/auth/redirect";
 import { useCustomizations } from "@/lib/hooks/use-customizations";
 import { customizationsService } from "@/lib/services/customizations-service";
-import { useFavorites } from "@/lib/hooks/use-favorites";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { MyShortcutAppContent } from "./my-shortcut-app-content";
 import { Button } from "@/components/ui/button";
@@ -68,7 +67,6 @@ function MyShortcutsListContent({
 }) {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const { refetch: refetchFavorites } = useFavorites();
   const {
     customizations,
     isLoading,
@@ -139,7 +137,7 @@ function MyShortcutsListContent({
       await customizationsService.deleteCustomApp(deleteApp.id, user);
       wasDeleted = true;
       setDeleteApp(null);
-      await Promise.all([refetch(), refetchFavorites()]);
+      await refetch();
     } catch (error) {
       setError(
         wasDeleted
@@ -190,7 +188,7 @@ function MyShortcutsListContent({
             onClick={async () => {
               setPending(true);
               try {
-                await Promise.all([refetch(), refetchFavorites()]);
+                await refetch();
                 setError(null);
               } catch {
                 setError("Unable to reload your collection. Please try again.");
@@ -228,7 +226,7 @@ function MyShortcutsListContent({
             variant="outline"
             className="mt-5 rounded-xl"
             onClick={() =>
-              Promise.all([refetch(), refetchFavorites()])
+              refetch()
                 .then(() => setError(null))
                 .catch(() => {})
             }

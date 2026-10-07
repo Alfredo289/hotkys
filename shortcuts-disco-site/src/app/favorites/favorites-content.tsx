@@ -3,12 +3,10 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Search, Star } from "lucide-react";
-import { useAuth } from "@/components/auth/auth-provider";
 import { useFavorites } from "@/lib/hooks/use-favorites";
-import { useCustomizations } from "@/lib/hooks/use-customizations";
-import { favoritesService } from "@/lib/services/favorites-service";
-import { ShortcutMerger } from "@/lib/services/shortcut-merger";
-import { getLoginHref } from "@/lib/auth/redirect";
+import { withBaseShortcutIdentities } from "@/lib/catalog-identities";
+import { matchesFavorite } from "@/lib/shortcut-core/favorites";
+import type { LocalFavorite } from "@/lib/storage/favorites-store";
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/ui/app-icon";
 import { SearchBar } from "@/components/ui/search-bar";
@@ -19,11 +17,6 @@ import type {
   AppShortcuts,
   SectionShortcut,
 } from "@/lib/model/internal/internal-models";
-import type {
-  CustomApp,
-  CustomKeymap,
-  Favorite,
-} from "@/lib/model/user/user-models";
 
 const filters = [
   ["all", "All"],
@@ -32,44 +25,24 @@ const filters = [
   ["shortcut", "Shortcuts"],
 ] as const;
 
+const MISSING_TEXT = "No longer in the catalog";
+
 export function FavoritesContent({
   applications = [],
 }: {
   applications?: AppShortcuts[];
 }) {
-  const { user, isLoading: authLoading } = useAuth();
-  const {
-    favorites,
-    isLoading: favoritesLoading,
-    error: favoritesError,
-    refetch,
-  } = useFavorites();
-  const {
-    customizations,
-    isLoading: customizationsLoading,
-    error: customizationsError,
-    refetch: refetchCustomizations,
-  } = useCustomizations();
+  const { favorites, isLoading, removeFavorite } = useFavorites();
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | Favorite["itemType"]>("all");
-  const [removing, setRemoving] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const mergedApps = useMemo(
-    () =>
-      new ShortcutMerger(customizations).mergeShortcuts(
-        applications,
-        customizations,
-      ),
-    [applications, customizations],
+  const [filter, setFilter] = useState<"all" | LocalFavorite["itemType"]>(
+    "all",
+  );
+  const identifiedApps = useMemo(
+    () => withBaseShortcutIdentities(applications),
+    [applications],
   );
   const entries = favorites.map((favorite) =>
-    resolveFavorite(
-      favorite,
-      mergedApps,
-      customizations.customApps,
-      customizations.customKeymaps,
-      applications,
-    ),
+    resolveFavorite(favorite, identifiedApps),
   );
   const visible = entries.filter(
     (entry) =>
@@ -79,32 +52,13 @@ export function FavoritesContent({
         .toLowerCase()
         .includes(search.trim().toLowerCase()),
   );
-  const removeFavorite = async (favorite: Favorite) => {
-    if (!user || removing) return;
-    setRemoving(favorite.id);
-    setError(null);
-    try {
-      // Remove the persisted row, retaining stable and custom-app identities.
-      await favoritesService.removeFavorite(favorite.id, user);
-      await refetch();
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to remove this favorite. Please try again.",
-      );
-    } finally {
-      setRemoving(null);
-    }
-  };
   const removeButton = (entry: FavoriteEntry) => (
     <Button
       variant="ghost"
       size="icon"
       className="size-9 shrink-0 rounded-lg text-brand"
       aria-label={`Remove ${entry.title} from favorites`}
-      disabled={removing !== null}
-      onClick={() => removeFavorite(entry.favorite)}
+      onClick={() => removeFavorite(entry.favorite.id)}
     >
       <Star className="size-4 fill-current" aria-hidden="true" />
     </Button>
@@ -131,7 +85,7 @@ export function FavoritesContent({
           </Link>
         </Button>
       </div>
-      {authLoading || (user && (favoritesLoading || customizationsLoading)) ? (
+      {isLoading ? (
         <div
           role="status"
           aria-label="Loading favorites"
@@ -143,45 +97,6 @@ export function FavoritesContent({
               className="h-40 animate-pulse rounded-2xl border bg-muted/50"
             />
           ))}
-        </div>
-      ) : user && (favoritesError || customizationsError) ? (
-        <div role="alert" className="rounded-2xl border bg-card p-6">
-          <h2 className="text-xl font-semibold tracking-tight">
-            Couldn’t load your collection
-          </h2>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {favoritesError || customizationsError}
-          </p>
-          <Button
-            variant="outline"
-            className="mt-5 rounded-xl"
-            onClick={() =>
-              Promise.allSettled([refetch(), refetchCustomizations()])
-            }
-          >
-            Retry loading
-          </Button>
-        </div>
-      ) : !user ? (
-        <div className="grid items-center gap-8 rounded-2xl border bg-card p-6 md:grid-cols-[1fr_auto] md:p-10">
-          <div>
-            <span className="mb-5 flex size-12 items-center justify-center rounded-xl border border-brand/20 bg-brand/8 text-brand">
-              <Star className="size-5" aria-hidden="true" />
-            </span>
-            <h2 className="text-2xl font-semibold tracking-tight">
-              Keep your favorites close.
-            </h2>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-              Sign in to save apps and individual shortcuts. Your collection
-              will be here whenever you need it.
-            </p>
-          </div>
-          <Button asChild className="self-start rounded-xl">
-            <Link href={getLoginHref("/favorites")}>
-              Sign in to save favorites{" "}
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
-          </Button>
         </div>
       ) : favorites.length === 0 ? (
         <div className="rounded-2xl border border-dashed bg-card px-6 py-14 text-center">
@@ -234,14 +149,6 @@ export function FavoritesContent({
               ))}
             </div>
           </div>
-          {error && (
-            <p
-              role="alert"
-              className="mb-5 rounded-xl border border-destructive/25 bg-destructive/5 p-4 text-sm text-destructive"
-            >
-              {error}
-            </p>
-          )}
           <p role="status" className="sr-only">
             {visible.length} saved items
           </p>
@@ -292,37 +199,58 @@ export function FavoritesContent({
                             key={entry.favorite.id}
                             className="relative rounded-2xl border bg-card transition-colors hover:border-brand/35"
                           >
-                            <Link
-                              href={entry.href}
-                              className="block rounded-2xl p-5 pr-14"
-                            >
-                              <AppIcon
-                                icon={entry.app?.icon}
-                                appName={entry.appName}
-                                size="md"
-                                className="mb-5 size-11 rounded-xl [&_img]:object-contain"
-                              />
-                              <h3 className="font-semibold tracking-tight">
-                                {entry.title}
-                              </h3>
-                              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                                {type === "keymap"
-                                  ? entry.appName
-                                  : (appDescriptions[entry.app?.slug ?? ""] ??
-                                    "Your saved shortcut collection.")}
-                              </p>
-                              <p className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-                                {entry.app
-                                  ? type === "app"
-                                    ? "Open app"
-                                    : "Open keymap"
-                                  : "App unavailable"}
-                                <ArrowUpRight
-                                  className="size-3.5"
-                                  aria-hidden="true"
-                                />
-                              </p>
-                            </Link>
+                            {(() => {
+                              const body = (
+                                <>
+                                  <AppIcon
+                                    icon={entry.app?.icon}
+                                    appName={entry.appName}
+                                    size="md"
+                                    className="mb-5 size-11 rounded-xl [&_img]:object-contain"
+                                  />
+                                  <h3 className="font-semibold tracking-tight">
+                                    {entry.title}
+                                  </h3>
+                                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                                    {entry.missing
+                                      ? type === "keymap"
+                                        ? entry.appName
+                                        : "This app was removed from the catalog."
+                                      : type === "keymap"
+                                        ? entry.appName
+                                        : (appDescriptions[
+                                            entry.app?.slug ?? ""
+                                          ] ??
+                                          "Your saved shortcut collection.")}
+                                  </p>
+                                  <p className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                                    {entry.missing
+                                      ? MISSING_TEXT
+                                      : type === "app"
+                                        ? "Open app"
+                                        : "Open keymap"}
+                                    {!entry.missing && (
+                                      <ArrowUpRight
+                                        className="size-3.5"
+                                        aria-hidden="true"
+                                      />
+                                    )}
+                                  </p>
+                                </>
+                              );
+                              return entry.missing ? (
+                                <div className="block rounded-2xl p-5 pr-14 opacity-75">
+                                  {body}
+                                </div>
+                              ) : (
+                                <Link
+                                  href={entry.href}
+                                  className="block rounded-2xl p-5 pr-14"
+                                >
+                                  {body}
+                                </Link>
+                              );
+                            })()}
                             <div className="absolute top-4 right-3">
                               {removeButton(entry)}
                             </div>
@@ -378,22 +306,31 @@ export function FavoritesContent({
                               key={entry.favorite.id}
                               className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 gap-y-2 rounded-xl px-3 py-3 odd:bg-muted/40 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-center"
                             >
-                              <Link
-                                href={entry.href}
-                                className="col-start-1 row-start-1 min-w-0 text-sm font-medium hover:text-brand"
-                              >
-                                <span>{entry.title}</span>
-                                <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                                  {entry.sectionTitle}
-                                </span>
-                              </Link>
+                              {entry.missing ? (
+                                <div className="col-start-1 row-start-1 min-w-0 text-sm font-medium">
+                                  <span>{entry.title}</span>
+                                  <span className="mt-1 block text-xs font-normal text-muted-foreground">
+                                    {entry.sectionTitle}
+                                  </span>
+                                </div>
+                              ) : (
+                                <Link
+                                  href={entry.href}
+                                  className="col-start-1 row-start-1 min-w-0 text-sm font-medium hover:text-brand"
+                                >
+                                  <span>{entry.title}</span>
+                                  <span className="mt-1 block text-xs font-normal text-muted-foreground">
+                                    {entry.sectionTitle}
+                                  </span>
+                                </Link>
+                              )}
                               <div className="col-span-2 row-start-2 min-w-0 sm:col-span-1 sm:col-start-2 sm:row-start-1">
                                 {entry.shortcut ? (
                                   <ShortcutMethod shortcut={entry.shortcut} />
                                 ) : (
                                   <p className="text-sm text-muted-foreground">
-                                    Shortcut unavailable. You can still remove
-                                    this favorite.
+                                    {MISSING_TEXT}. You can still remove this
+                                    favorite.
                                   </p>
                                 )}
                               </div>
@@ -417,7 +354,7 @@ export function FavoritesContent({
 }
 
 interface FavoriteEntry {
-  favorite: Favorite;
+  favorite: LocalFavorite;
   app?: AppShortcuts;
   appName: string;
   title: string;
@@ -426,151 +363,65 @@ interface FavoriteEntry {
   sectionTitle?: string;
   groupKey: string;
   shortcut?: SectionShortcut;
+  /** The saved item is no longer in the catalog. */
+  missing: boolean;
 }
+
 function resolveFavorite(
-  favorite: Favorite,
+  favorite: LocalFavorite,
   apps: AppShortcuts[],
-  customApps: CustomApp[],
-  publicCustomKeymaps: CustomKeymap[],
-  publicCatalog: AppShortcuts[],
 ): FavoriteEntry {
-  const stableLocation =
-    favorite.customShortcutId || favorite.baseShortcutId
-      ? uniqueMatch(
-          apps.flatMap((app) =>
-            app.keymaps.flatMap((keymap) =>
-              keymap.sections.flatMap((section) =>
-                section.hotkeys.map((shortcut) => ({
-                  app,
-                  keymap,
-                  section,
-                  shortcut,
-                })),
-              ),
-            ),
-          ),
-          (entry) =>
-            favorite.customShortcutId
-              ? entry.shortcut.customShortcutId === favorite.customShortcutId ||
-                entry.shortcut.customizationId === favorite.customShortcutId
-              : entry.app.slug === favorite.appSlug &&
-                entry.keymap.title === favorite.keymapTitle &&
-                (entry.shortcut.baseSectionTitle ?? entry.section.title) ===
-                  favorite.sectionTitle &&
-                (entry.shortcut.baseShortcutId === favorite.baseShortcutId ||
-                  !!entry.shortcut.baseShortcutAliases?.includes(
-                    favorite.baseShortcutId!,
-                  )),
-        )
-      : undefined;
-  const publicKeymap = publicCustomKeymaps.find(
-    (keymap) =>
-      keymap.id ===
-      (favorite.customKeymapId ?? stableLocation?.keymap.customKeymapId),
-  );
-  const custom = customApps.find((a) =>
-    favorite.customShortcutId
-      ? a.keymaps.some((k) =>
-          k.sections.some((s) =>
-            s.shortcuts.some((h) => h.id === favorite.customShortcutId),
-          ),
-        )
-      : favorite.customKeymapId
-        ? a.keymaps.some((k) => k.id === favorite.customKeymapId)
-        : favorite.customAppId
-          ? a.id === favorite.customAppId
-          : `custom-${a.slug}` === favorite.appSlug,
-  );
-  const app =
-    stableLocation?.app ??
-    apps.find(
-      (a) =>
-        a.slug ===
-        (custom
-          ? `custom-${custom.slug}`
-          : (publicKeymap?.baseAppSlug ?? favorite.appSlug)),
-    );
-  // Unresolved legacy rows may have duplicate names. Keep them removable
-  // without guessing which private record the user originally saved.
-  const privateKeymap = uniqueMatch(custom?.keymaps, (k) =>
-    favorite.customShortcutId
-      ? k.sections.some((section) =>
-          section.shortcuts.some((h) => h.id === favorite.customShortcutId),
-        )
-      : favorite.customKeymapId
-        ? k.id === favorite.customKeymapId
-        : k.title === favorite.keymapTitle,
-  );
-  const privateSection = uniqueMatch(privateKeymap?.sections, (section) =>
-    favorite.customShortcutId
-      ? section.shortcuts.some((h) => h.id === favorite.customShortcutId)
-      : section.title === favorite.sectionTitle,
-  );
-  const privateShortcut = uniqueMatch(privateSection?.shortcuts, (h) =>
-    favorite.customShortcutId
-      ? h.id === favorite.customShortcutId
-      : h.title === favorite.shortcutTitle,
-  );
-  const keymapTitle =
-    privateKeymap?.title ??
-    publicKeymap?.title ??
-    stableLocation?.keymap.title ??
-    favorite.keymapTitle;
-  const sectionTitle =
-    privateSection?.title ??
-    stableLocation?.section.title ??
-    favorite.sectionTitle;
+  const app = apps.find((candidate) => candidate.slug === favorite.appSlug);
   const keymap =
-    stableLocation?.keymap ??
-    app?.keymaps.find((k) => k.title === keymapTitle) ??
-    (favorite.itemType === "app" ? app?.keymaps[0] : undefined);
+    favorite.itemType === "app"
+      ? app?.keymaps[0]
+      : app?.keymaps.find(
+          (candidate) => candidate.title === favorite.keymapTitle,
+        );
   const section = keymap?.sections.find(
-    (section) => section.title === sectionTitle,
+    (candidate) => candidate.title === favorite.sectionTitle,
   );
   const shortcut =
-    stableLocation?.shortcut ??
-    (custom
-      ? app?.keymaps
-          .flatMap((k) => k.sections.flatMap((section) => section.hotkeys))
-          .find((h) => h.customizationId === privateShortcut?.id)
-      : section?.hotkeys.find((h) =>
-          favorite.baseShortcutId
-            ? h.baseShortcutId === favorite.baseShortcutId ||
-              !!h.baseShortcutAliases?.includes(favorite.baseShortcutId)
-            : (h.baseShortcutTitle ?? h.title) === favorite.shortcutTitle,
-        ));
-  const addedKeymapId = keymap?.customKeymapId;
-  const routeKeymap = addedKeymapId
-    ? publicCatalog.find((a) => a.slug === app?.slug)?.keymaps[0]
-    : keymap;
-  const href = custom
-    ? `/my-shortcuts?app=${encodeURIComponent(custom.slug)}${privateKeymap ? `&keymap=${encodeURIComponent(privateKeymap.id)}` : ""}${privateShortcut ? `#shortcut-${privateShortcut.id}` : ""}`
-    : app
-      ? `/apps/${app.slug}${routeKeymap ? `/${serializeKeymap(routeKeymap)}` : ""}${addedKeymapId ? `?keymap=${encodeURIComponent(addedKeymapId)}` : ""}${sectionTitle ? `#${encodeURIComponent(sectionTitle)}` : ""}`
-      : "/#applications";
+    favorite.itemType === "shortcut" && app && keymap && section
+      ? section.hotkeys.find((row) =>
+          matchesFavorite(favorite, {
+            itemType: "shortcut",
+            appSlug: app.slug,
+            keymapTitle: keymap.title,
+            sectionTitle: section.title,
+            shortcutTitle: row.baseShortcutTitle ?? row.title,
+            baseShortcutId: row.baseShortcutId,
+            baseShortcutAliases: row.baseShortcutAliases,
+          }),
+        )
+      : undefined;
+  const missing =
+    !app ||
+    (favorite.itemType !== "app" && !keymap) ||
+    (favorite.itemType === "shortcut" && !shortcut);
   const appName = app?.name ?? favorite.appSlug ?? "Unavailable app";
+  const href = missing
+    ? "/#applications"
+    : `/apps/${app.slug}${keymap ? `/${serializeKeymap(keymap)}` : ""}${
+        favorite.itemType === "shortcut" && section
+          ? `#${encodeURIComponent(section.title)}`
+          : ""
+      }`;
   return {
     favorite,
     app,
     appName,
     shortcut,
     href,
-    keymapTitle,
-    sectionTitle,
-    groupKey: `${custom?.id ?? app?.slug ?? favorite.appSlug}/${privateKeymap?.id ?? addedKeymapId ?? keymapTitle}`,
+    missing,
+    keymapTitle: keymap?.title ?? favorite.keymapTitle,
+    sectionTitle: section?.title ?? favorite.sectionTitle,
+    groupKey: `${favorite.appSlug}/${favorite.keymapTitle}`,
     title:
       favorite.itemType === "app"
         ? appName
         : favorite.itemType === "keymap"
-          ? (keymapTitle ?? "Saved keymap")
+          ? (favorite.keymapTitle ?? "Saved keymap")
           : (shortcut?.title ?? favorite.shortcutTitle ?? "Saved shortcut"),
   };
-}
-
-function uniqueMatch<T>(
-  items: T[] | undefined,
-  predicate: (item: T) => boolean,
-): T | undefined {
-  const matches = items?.filter(predicate);
-  return matches?.length === 1 ? matches[0] : undefined;
 }

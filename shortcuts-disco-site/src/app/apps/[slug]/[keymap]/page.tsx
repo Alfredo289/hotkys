@@ -102,7 +102,6 @@ export default async function SingleApplicationPage({ params }: Props) {
             <FavoriteButton
               itemType="app"
               appSlug={appShortcuts.slug}
-              showSignIn
               className="size-9 rounded-xl border bg-card"
             />
           </div>

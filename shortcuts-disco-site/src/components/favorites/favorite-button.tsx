@@ -1,14 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/components/auth/auth-provider";
 import { useFavorites } from "@/lib/hooks/use-favorites";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { getLoginHref } from "@/lib/auth/redirect";
 
 interface FavoriteButtonProps {
   itemType: "app" | "keymap" | "shortcut";
@@ -24,7 +20,6 @@ interface FavoriteButtonProps {
   label?: string;
   className?: string;
   size?: "default" | "sm" | "icon";
-  showSignIn?: boolean;
 }
 
 export function FavoriteButton({
@@ -41,35 +36,13 @@ export function FavoriteButton({
   label,
   className,
   size = "icon",
-  showSignIn = false,
 }: FavoriteButtonProps) {
-  const { user } = useAuth();
-  const {
-    isFavorite,
-    toggleFavorite,
-    isLoading: favoritesLoading,
-    error: favoritesError,
-  } = useFavorites();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const pathname = usePathname();
 
-  if (!user)
-    return showSignIn ? (
-      <Button
-        asChild
-        variant="ghost"
-        size={size}
-        className={cn("h-8 w-8", className)}
-      >
-        <Link
-          href={getLoginHref(pathname)}
-          aria-label={`Sign in to favorite ${appSlug}`}
-        >
-          <Star className="h-4 w-4" aria-hidden="true" />
-        </Link>
-      </Button>
-    ) : null;
+  // Favorites cover catalog items only; custom items are not favoritable.
+  if (customAppId || customKeymapId || customShortcutId) return null;
 
   const favorited = isFavorite({
     itemType,
@@ -115,7 +88,7 @@ export function FavoriteButton({
         variant="ghost"
         size={size}
         onClick={handleToggle}
-        disabled={isLoading || favoritesLoading || !!favoritesError}
+        disabled={isLoading}
         className={cn("h-8 w-8", className)}
         aria-label={
           label
