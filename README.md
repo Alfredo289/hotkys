@@ -1,6 +1,6 @@
 # Hotkys (personal fork)
 
-A personal keyboard-shortcut catalog, run locally at `http://localhost:3000`. Forked from [solomkinmv/hotkys](https://github.com/solomkinmv/hotkys); this fork is local-only and is being stripped of accounts, cloud storage, analytics and deployment.
+A personal keyboard-shortcut catalog, run locally at `http://localhost:3000`. Forked from [solomkinmv/hotkys](https://github.com/solomkinmv/hotkys); this fork is local-only and has no accounts, cloud storage, analytics or hosted deployment.
 
 ```bash
 npm --prefix shortcuts-disco-site ci
