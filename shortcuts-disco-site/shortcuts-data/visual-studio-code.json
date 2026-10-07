@@ -283,7 +283,7 @@
           "shortcuts": [
             {
               "title": "Format Document",
-              "key": "shift+opt+f"
+              "key": "shift+alt+f"
             }
           ]
         },

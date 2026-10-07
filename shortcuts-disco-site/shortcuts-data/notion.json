@@ -285,7 +285,7 @@
             },
             {
               "title": "Expand or close all toggles in a toggle list",
-              "key": "ctrl+opt+t"
+              "key": "ctrl+alt+t"
             },
             {
               "title": "Apply the last color or highlight color you used",

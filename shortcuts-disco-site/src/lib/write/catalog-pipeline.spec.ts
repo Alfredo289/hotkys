@@ -26,7 +26,7 @@ it("publishes deterministic snapshots, reconciles platform changes/renames/delet
   generateCatalog(root); const first = read("data/combined-apps.json"); generateCatalog(root);
   expect(read("data/combined-apps.json")).toBe(first);
   expect(fs.readFileSync(path.join(root, "shortcuts-data/example.json"), "utf8")).toBe(source);
-  fs.unlinkSync(path.join(root, "shortcuts-data/example.json")); app.slug = "renamed"; app.keymaps[0].platforms = ["windows"]; save(); generateCatalog(root);
+  fs.unlinkSync(path.join(root, "shortcuts-data/example.json")); app.slug = "renamed"; app.keymaps[0].platforms = ["windows"]; app.keymaps[0].sections[0].shortcuts[0].key = "ctrl+c"; save(); generateCatalog(root);
   expect(fs.existsSync(path.join(root, "public/data/macos/example.json"))).toBe(false);
   expect(JSON.parse(read("data/windows/apps.json")).apps[0].slug).toBe("renamed");
   fs.unlinkSync(path.join(root, "shortcuts-data/renamed.json")); generateCatalog(root);

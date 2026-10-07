@@ -425,25 +425,25 @@
             },
             {
               "title": "Switch model",
-              "key": "opt+p"
+              "key": "alt+p"
             },
             {
               "title": "Toggle extended thinking",
-              "key": "opt+t",
+              "key": "alt+t",
               "comment": "For models that support disabling thinking"
             },
             {
               "title": "Toggle fast mode",
-              "key": "opt+o"
+              "key": "alt+o"
             },
             {
               "title": "Paste image from clipboard",
-              "key": "opt+v",
+              "key": "alt+v",
               "comment": "Also supported in WSL"
             },
             {
               "title": "Cycle permission modes",
-              "key": "opt+m",
+              "key": "alt+m",
               "comment": "Fallback when Node or Bun does not enable VT input"
             }
           ]
@@ -522,20 +522,20 @@
             },
             {
               "title": "Cycle paste history",
-              "key": "opt+y",
+              "key": "alt+y",
               "comment": "After Ctrl+Y; set Option as Meta on macOS"
             },
             {
               "title": "Move back one word",
-              "key": "opt+b"
+              "key": "alt+b"
             },
             {
               "title": "Move to word end",
-              "key": "opt+f"
+              "key": "alt+f"
             },
             {
               "title": "Delete to word end",
-              "key": "opt+d"
+              "key": "alt+d"
             },
             {
               "title": "Undo last input edit",

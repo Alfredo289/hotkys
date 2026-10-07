@@ -206,7 +206,7 @@ describe("Throws validation error", () => {
         });
 
         it("should accept valid Windows platform", () => {
-            const appShortcuts = generateInputAppWithShortcut({platforms: ["windows"]});
+            const appShortcuts = generateInputAppWithShortcut({platforms: ["windows"], shortcut: "ctrl+e"});
             expect(() => validator.validate([appShortcuts])).not.toThrow();
         });
 

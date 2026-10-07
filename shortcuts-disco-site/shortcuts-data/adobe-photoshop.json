@@ -2010,7 +2010,7 @@
           "shortcuts": [
             {
               "title": "Show Clone Source (overlays image)",
-              "key": "opt+shift"
+              "key": "alt+shift"
             }
           ]
         },

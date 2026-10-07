@@ -1302,7 +1302,7 @@
             },
             {
               "title": "Remove from selection",
-              "key": "opt"
+              "key": "alt"
             },
             {
               "title": "Grow/Shrink",

@@ -1,4 +1,4 @@
-import { getWindowsKeyNames } from "./windows-key-names";
+import { getWindowsKeyNames } from "../shortcut-core/windows-keys";
 import { catalogUrl } from "../config/catalog";
 import { useFetch } from "@raycast/utils";
 import { getPlatform } from "./platform";
@@ -16,7 +16,7 @@ interface UseKeyCodesResult {
   revalidate: () => void;
 }
 
-export { getWindowsKeyNames } from "./windows-key-names";
+export { getWindowsKeyNames } from "../shortcut-core/windows-keys";
 
 export default function useKeyCodes(): UseKeyCodesResult {
   const platform = getPlatform();
