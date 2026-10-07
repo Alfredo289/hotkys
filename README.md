@@ -1,10 +1,15 @@
-# Hotkys
+# Hotkys (personal fork)
 
-Find keyboard shortcuts on the website and in Raycast. The macOS and Windows extension can identify the current app or supported browser page and execute a shortcut after verifying its target. Optional Clerk accounts sync private shortcuts, preferences, and favorites through Supabase.
+A personal keyboard-shortcut catalog, run locally at `http://localhost:3000`. Forked from [solomkinmv/hotkys](https://github.com/solomkinmv/hotkys); this fork is local-only and is being stripped of accounts, cloud storage, analytics and deployment.
 
-- [Contribute or correct shortcuts](CONTRIBUTING.md)
-- [Website development](shortcuts-disco-site/README.md)
-- [Raycast development](shortcuts-raycast-extension/README.md)
-- [Authentication and database operations](docs/auth-operations.md)
+```bash
+npm --prefix shortcuts-disco-site ci
+npm --prefix shortcuts-disco-site run dev
+```
 
-Public catalog development requires no account credentials. Contributions are reviewed through pull requests; exporting a private draft does not publish it.
+Requires Node 22+. No environment variables are needed.
+
+- Catalog data: one JSON file per app in `shortcuts-disco-site/shortcuts-data/`. The dev server regenerates the catalog when these change.
+- Website: [`shortcuts-disco-site/`](shortcuts-disco-site/README.md)
+- Raycast extension: [`shortcuts-raycast-extension/`](shortcuts-raycast-extension/README.md) (not yet adapted to this fork)
+- Current work: `.scratch/hotkys-personal-mvp/spec.md`

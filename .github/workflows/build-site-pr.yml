@@ -10,9 +10,7 @@ on:
       - 'shortcuts-disco-site/**' # Trigger only for changes in this directory
       - 'shared/**'
       - 'scripts/**'
-      - 'docs/catalog-compatibility.json'
       - '.github/workflows/build-site-pr.yml'
-      - '.github/workflows/deploy-pages.yml'
 
 permissions:
   contents: read
@@ -49,11 +47,6 @@ jobs:
           npm run validate-data
           npm run format-data:check
           npm run test:catalog
-      - name: Check existing catalog identities
-        env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: node ../scripts/check-catalog-identities.mjs "$PR_BASE_SHA"
-
       - name: Test
         run: npm test -- --runInBand
 
