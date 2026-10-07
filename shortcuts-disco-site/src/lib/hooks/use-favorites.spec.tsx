@@ -22,16 +22,6 @@ jest.mock("@/lib/services/user-service", () => ({
     getProfile: async () => null,
   },
 }));
-jest.mock("@/lib/services/customizations-service", () => ({
-  customizationsService: {
-    getAllCustomizations: async () => ({
-      customApps: [],
-      customKeymaps: [],
-      shortcuts: [],
-      favorites: [],
-    }),
-  },
-}));
 const { AccountDataProvider } =
   require("@/components/auth/account-data-provider") as typeof import("@/components/auth/account-data-provider");
 const { useFavorites } =

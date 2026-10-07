@@ -21,7 +21,6 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/#applications", label: "Apps" },
   { href: "/favorites", label: "Favorites" },
-  { href: "/my-shortcuts", label: "My shortcuts" },
   ...MAIN_NAV_LINKS,
 ];
 

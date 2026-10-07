@@ -1,4 +1,3 @@
-import type { Platform } from "@/lib/model/internal/internal-models";
 import { isWindowsProcessName } from "@/lib/shortcut-core/windows";
 import {
   isHttpUrl,
@@ -28,7 +27,6 @@ export const USER_CONTENT_LIMITS = {
 } as const;
 
 export const CUSTOM_APP_SLUG_PATTERN = /^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$/;
-const VALID_PLATFORMS = new Set<Platform>(["macos", "windows", "linux"]);
 
 interface CustomAppMetadata {
   name?: string;
@@ -39,26 +37,6 @@ interface CustomAppMetadata {
   hostname?: string | null;
   source?: string | null;
   icon?: string | null;
-}
-
-interface CustomKeymapMetadata {
-  baseAppSlug?: string;
-  title: string;
-  platforms?: Platform[];
-}
-
-interface CustomSectionMetadata {
-  title: string;
-  sortOrder: number;
-}
-
-interface ShortcutStorageMetadata {
-  baseAppSlug?: string;
-  baseKeymapTitle?: string;
-  baseSectionTitle?: string;
-  baseShortcutTitle?: string;
-  baseShortcutId?: string;
-  sortOrder: number;
 }
 
 interface FavoriteMetadata {
@@ -118,69 +96,6 @@ export function validateCustomAppMetadata(app: CustomAppMetadata): void {
   }
 }
 
-export function validateCustomKeymapMetadata(keymap: CustomKeymapMetadata): void {
-  validateRequiredText(
-    keymap.title,
-    "Keymap title",
-    USER_CONTENT_LIMITS.keymapTitle,
-  );
-  validateOptionalText(
-    keymap.baseAppSlug,
-    "Base app slug",
-    USER_CONTENT_LIMITS.slug,
-  );
-  if (keymap.platforms && new Set(keymap.platforms).size !== keymap.platforms.length) {
-    throw new Error("Keymap platforms must be unique");
-  }
-  if (keymap.platforms?.some((platform) => !VALID_PLATFORMS.has(platform))) {
-    throw new Error("Unsupported keymap platform");
-  }
-}
-
-export function validateCustomSectionMetadata(section: CustomSectionMetadata): void {
-  validateRequiredText(
-    section.title,
-    "Section title",
-    USER_CONTENT_LIMITS.sectionTitle,
-  );
-  if (!Number.isInteger(section.sortOrder) || section.sortOrder < 0) {
-    throw new Error("Section sort order must be a non-negative integer");
-  }
-}
-
-export function validateShortcutStorageMetadata(
-  shortcut: ShortcutStorageMetadata,
-): void {
-  validateOptionalText(
-    shortcut.baseAppSlug,
-    "Base app slug",
-    USER_CONTENT_LIMITS.slug,
-  );
-  validateOptionalText(
-    shortcut.baseKeymapTitle,
-    "Base keymap title",
-    USER_CONTENT_LIMITS.keymapTitle,
-  );
-  validateOptionalText(
-    shortcut.baseSectionTitle,
-    "Base section title",
-    USER_CONTENT_LIMITS.sectionTitle,
-  );
-  validateOptionalText(
-    shortcut.baseShortcutTitle,
-    "Base shortcut title",
-    USER_CONTENT_LIMITS.shortcutTitle,
-  );
-  validateOptionalText(
-    shortcut.baseShortcutId,
-    "Base shortcut ID",
-    USER_CONTENT_LIMITS.baseShortcutId,
-  );
-  if (!Number.isInteger(shortcut.sortOrder) || shortcut.sortOrder < 0) {
-    throw new Error("Shortcut sort order must be a non-negative integer");
-  }
-}
-
 export function validateFavoriteMetadata(favorite: FavoriteMetadata): void {
   validateOptionalText(favorite.appSlug, "App slug", USER_CONTENT_LIMITS.slug + 7);
   validateOptionalText(
@@ -228,16 +143,6 @@ export function validateRequiredText(
 ): void {
   if (value.trim().length === 0) throw new Error(`${label} is required`);
   validateTextLength(value, label, maxLength);
-}
-
-export function assertResourceLimit(
-  currentCount: number,
-  maxCount: number,
-  label: string,
-): void {
-  if (currentCount >= maxCount) {
-    throw new Error(`You can save at most ${maxCount} ${label}.`);
-  }
 }
 
 export function validateOptionalText(

@@ -10,12 +10,10 @@ import {
 } from "react";
 import { useAuth } from "./auth-provider";
 import { userService } from "@/lib/services/user-service";
-import { customizationsService } from "@/lib/services/customizations-service";
 import { favoritesService } from "@/lib/services/favorites-service";
 import type {
   UserPreferences,
   UserProfile,
-  UserCustomizations,
   Favorite,
 } from "@/lib/model/user/user-models";
 export const defaultPreferences: UserPreferences = {
@@ -23,16 +21,9 @@ export const defaultPreferences: UserPreferences = {
   viewMode: "list",
   columnCount: 4,
 };
-const emptyCustomizations: UserCustomizations = {
-  customApps: [],
-  customKeymaps: [],
-  shortcuts: [],
-  favorites: [],
-};
 type Data = {
   preferences: UserPreferences;
   profile: UserProfile | null;
-  customizations: UserCustomizations;
   favorites: Favorite[];
 };
 type Resource = keyof Data;
@@ -55,7 +46,6 @@ export function AccountDataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<Data>({
     preferences: defaultPreferences,
     profile: null,
-    customizations: emptyCustomizations,
     favorites: [],
   });
   const [loading, setLoading] = useState(Boolean(user));
@@ -104,7 +94,6 @@ export function AccountDataProvider({ children }: { children: ReactNode }) {
           return (await userService.getPreferences(user)) ?? defaultPreferences;
         },
         profile: () => userService.getProfile(user),
-        customizations: () => customizationsService.getAllCustomizations(user),
         favorites: () => favoritesService.getFavorites(user),
       };
       const promise = Promise.all(

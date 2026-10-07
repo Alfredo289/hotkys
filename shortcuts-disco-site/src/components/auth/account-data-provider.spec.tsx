@@ -17,7 +17,6 @@ const mockUser = {
     jest.fn<(next: typeof prefs, user: { id: string }) => Promise<void>>(),
   updateProfile: jest.fn(),
 };
-const mockCustom = { getAllCustomizations: jest.fn<() => Promise<unknown>>() };
 const mockFavorites = {
   getFavorites: jest.fn<() => Promise<unknown>>(),
   addFavorite: jest.fn<() => Promise<unknown>>(),
@@ -25,9 +24,6 @@ const mockFavorites = {
 };
 jest.mock("./auth-provider", () => ({ useAuth: () => mockAuth }));
 jest.mock("@/lib/services/user-service", () => ({ userService: mockUser }));
-jest.mock("@/lib/services/customizations-service", () => ({
-  customizationsService: mockCustom,
-}));
 jest.mock("@/lib/services/favorites-service", () => ({
   favoritesService: mockFavorites,
 }));
@@ -67,12 +63,6 @@ beforeEach(() => {
     id: user.id,
   }));
   mockUser.updatePreferences.mockResolvedValue(undefined);
-  mockCustom.getAllCustomizations.mockResolvedValue({
-    customApps: [],
-    customKeymaps: [],
-    shortcuts: [],
-    favorites: [],
-  });
   mockFavorites.getFavorites.mockResolvedValue([]);
 });
 it("completes loads during StrictMode effect replay", async () => {
@@ -220,7 +210,7 @@ it("reconciles a failed favorite response without replaying a possibly committed
   expect(mockFavorites.addFavorite).toHaveBeenCalledTimes(1);
 });
 
-it("refreshes after a pre-write read and coalesces customization/favorite callers", async () => {
+it("refreshes after a pre-write read and coalesces profile/favorite callers", async () => {
   render(
     <AccountDataProvider>
       <Probe />
@@ -245,7 +235,7 @@ it("refreshes after a pre-write read and coalesces customization/favorite caller
   // A direct private service write has completed while old is still in flight.
   act(() => {
     refresh = Promise.all([
-      account.refreshAfterWrite(["customizations"]),
+      account.refreshAfterWrite(["profile"]),
       account.refreshAfterWrite(["favorites"]),
     ]);
   });
@@ -256,7 +246,7 @@ it("refreshes after a pre-write read and coalesces customization/favorite caller
   });
   expect(account.data.favorites).toEqual([saved]);
   expect(mockFavorites.getFavorites).toHaveBeenCalledTimes(3);
-  expect(mockCustom.getAllCustomizations).toHaveBeenCalledTimes(3);
+  expect(mockUser.getProfile).toHaveBeenCalledTimes(3);
 });
 it("rejects only required failed resources after a write and retries reads without writes", async () => {
   render(
@@ -265,12 +255,12 @@ it("rejects only required failed resources after a write and retries reads witho
     </AccountDataProvider>,
   );
   await waitFor(() => expect(account.loading).toBe(false));
-  mockCustom.getAllCustomizations.mockRejectedValueOnce(
+  mockUser.getProfile.mockRejectedValueOnce(
     new Error("Read after save failed"),
   );
   await act(async () => {
     const results = await Promise.allSettled([
-      account.refreshAfterWrite(["customizations"]),
+      account.refreshAfterWrite(["profile"]),
       account.refreshAfterWrite(["favorites"]),
     ]);
     expect(results[0]).toMatchObject({
@@ -280,8 +270,8 @@ it("rejects only required failed resources after a write and retries reads witho
     expect(results[1].status).toBe("fulfilled");
   });
   await act(async () => {
-    await account.refreshAfterWrite(["customizations"]);
+    await account.refreshAfterWrite(["profile"]);
   });
-  expect(account.errors.customizations).toBeUndefined();
+  expect(account.errors.profile).toBeUndefined();
   expect(mockFavorites.addFavorite).not.toHaveBeenCalled();
 });
