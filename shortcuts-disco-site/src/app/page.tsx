@@ -75,22 +75,6 @@ const AllApplicationsPage = () => {
         </div>
       </section>
       <ApplicationList applications={allAppShortcuts.applications} />
-      <section className="mt-12 flex flex-col gap-5 border-t pt-8 pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight">
-            Built for your everyday apps.
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Free to browse. Open source. Better with your contributions.
-          </p>
-        </div>
-        <Button asChild variant="outline" className="rounded-xl">
-          <Link href="https://github.com/solomkinmv/shortcuts-disco">
-            Contribute a shortcut{" "}
-            <ArrowUpRight className="size-4" aria-hidden="true" />
-          </Link>
-        </Button>
-      </section>
     </div>
   );
 };

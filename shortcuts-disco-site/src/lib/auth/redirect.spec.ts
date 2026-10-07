@@ -22,8 +22,8 @@ describe("auth redirects", () => {
   });
 });
 
-it("rejects browser-normalized external redirects and preserves editor queries", () => {
+it("rejects browser-normalized external redirects and preserves query strings", () => {
   expect(getSafeAuthRedirectPath("/%5Cexample.com")).toBe("/");
   expect(getSafeAuthRedirectPath("/%0A/example.com")).toBe("/");
-  expect(getLoginHref("/my-shortcuts?app=my-draft")).toBe("/auth/login?next=%2Fmy-shortcuts%3Fapp%3Dmy-draft");
+  expect(getLoginHref("/apps/sample?view=cheatsheet")).toBe("/auth/login?next=%2Fapps%2Fsample%3Fview%3Dcheatsheet");
 });

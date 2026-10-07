@@ -3,14 +3,13 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, CircleUserRound, Settings2, Star, Keyboard } from "lucide-react";
+import { ArrowUpRight, CircleUserRound, Settings2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/profile", label: "Profile", icon: CircleUserRound },
   { href: "/settings", label: "Settings", icon: Settings2 },
   { href: "/favorites", label: "Favorites", icon: Star },
-  { href: "/my-shortcuts", label: "My shortcuts", icon: Keyboard },
 ];
 
 export function AccountPage({ title, description, children }: { title: string; description: string; children: ReactNode }) {

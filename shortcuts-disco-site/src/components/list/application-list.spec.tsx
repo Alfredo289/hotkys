@@ -5,7 +5,6 @@ import { appDescriptions } from "@/lib/app-descriptions";
 import fs from "node:fs";
 import path from "node:path";
 
-const mockUseMergedShortcuts = jest.fn();
 const mockUseAuth = jest.fn();
 const mockUseFavorites = jest.fn();
 jest.mock("@/components/auth/auth-provider", () => ({ useAuth: mockUseAuth }));
@@ -13,11 +12,6 @@ jest.mock("@/lib/hooks/use-favorites", () => ({
   useFavorites: mockUseFavorites,
 }));
 jest.mock("next/navigation", () => ({ usePathname: () => "/" }));
-
-jest.mock("@/lib/hooks/use-merged-shortcuts", () => ({
-  __esModule: true,
-  useMergedShortcuts: mockUseMergedShortcuts,
-}));
 
 jest.mock("@/lib/hooks/use-platform", () => ({
   __esModule: true,
@@ -57,17 +51,6 @@ const baseApps: AppShortcuts[] = [
   },
 ];
 
-const customApp: AppShortcuts = {
-  name: "My Tool",
-  slug: "custom-my-tool",
-  keymaps: [
-    {
-      title: "Default",
-      sections: [],
-    },
-  ],
-};
-
 describe("ApplicationList", () => {
   beforeEach(() => {
     mockUseAuth.mockReturnValue({ user: null, isLoading: false });
@@ -77,48 +60,37 @@ describe("ApplicationList", () => {
       isFavorite: () => false,
       toggleFavorite: jest.fn(),
     });
-    mockUseMergedShortcuts.mockReturnValue({
-      applications: [...baseApps, customApp],
-      isLoading: false,
-      isAuthenticated: true,
-    });
   });
 
-  it("includes account-local custom apps and routes them to the static management page", () => {
+  it("lists catalog apps and links them to their keymap pages", () => {
     render(<ApplicationList applications={baseApps} />);
 
     expect(screen.getByText("Sample")).toBeTruthy();
-    expect(screen.getByText("My Tool")).toBeTruthy();
-    expect(screen.getByText("Custom")).toBeTruthy();
     expect(
       screen.getByRole("link", { name: /sample,/i }).getAttribute("href"),
     ).toBe("/apps/sample/default");
+    expect(screen.queryByText("Custom")).toBeNull();
     expect(
-      screen.getByRole("link", { name: /my tool/i }).getAttribute("href"),
-    ).toBe("/my-shortcuts?app=my-tool");
+      screen.queryByRole("link", { name: /add your own app/i }),
+    ).toBeNull();
   });
 
-  it("describes every catalog app and provides copy for custom apps", () => {
+  it("describes every catalog app", () => {
     const appSlugs = fs
       .readdirSync(path.join(process.cwd(), "shortcuts-data"))
       .filter((name) => name.endsWith(".json"))
       .map((name) => name.slice(0, -5));
     expect(appSlugs.length).toBeGreaterThan(0);
-    expect(
-      appSlugs.filter((slug) => !appDescriptions[slug]?.trim()),
-    ).toEqual([]);
-    mockUseMergedShortcuts.mockReturnValue({
-      applications: [
-        { ...baseApps[0], name: "Figma", slug: "figma" },
-        customApp,
-      ],
-    });
-    render(<ApplicationList applications={baseApps} />);
+    expect(appSlugs.filter((slug) => !appDescriptions[slug]?.trim())).toEqual(
+      [],
+    );
+    render(
+      <ApplicationList
+        applications={[{ ...baseApps[0], name: "Figma", slug: "figma" }]}
+      />,
+    );
     expect(
       screen.getByText("Design interfaces and collaborate with your team."),
-    ).toBeTruthy();
-    expect(
-      screen.getByText("Your personal shortcuts, collected in one place."),
     ).toBeTruthy();
   });
 
@@ -131,10 +103,9 @@ describe("ApplicationList", () => {
     fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
     expect(screen.getByRole("link", { name: /sample,/i })).toBeTruthy();
     fireEvent.change(screen.getByRole("searchbox"), {
-      target: { value: "My Tool" },
+      target: { value: "Sample" },
     });
-    expect(screen.queryByRole("link", { name: /sample,/i })).toBeNull();
-    expect(screen.getByRole("link", { name: /my tool,/i })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /sample,/i })).toBeTruthy();
   });
 
   it("uses saved app favorites and links to the full collection", () => {
@@ -142,7 +113,7 @@ describe("ApplicationList", () => {
     mockUseFavorites.mockReturnValue({
       favorites: [
         { itemType: "app", appSlug: "sample" },
-        { itemType: "shortcut", appSlug: "custom-my-tool" },
+        { itemType: "shortcut", appSlug: "other" },
         { itemType: "app", appSlug: "missing" },
       ],
       isLoading: false,
@@ -155,37 +126,9 @@ describe("ApplicationList", () => {
     expect(
       panel.getByRole("link", { name: /sample/i }).getAttribute("href"),
     ).toBe("/apps/sample/default");
-    expect(panel.queryByText("My Tool")).toBeNull();
     expect(
       panel.getByRole("link", { name: /view favorites/i }).getAttribute("href"),
     ).toBe("/favorites");
-  });
-
-  it("finds private app favorites by ID after an app rename", () => {
-    mockUseAuth.mockReturnValue({ user: { id: "user-1" }, isLoading: false });
-    mockUseMergedShortcuts.mockReturnValue({
-      applications: [
-        ...baseApps,
-        {
-          ...customApp,
-          customAppId: "private-id",
-          slug: "custom-renamed",
-          name: "Renamed",
-        },
-      ],
-    });
-    mockUseFavorites.mockReturnValue({
-      favorites: [{ itemType: "app", customAppId: "private-id" }],
-      isLoading: false,
-      isFavorite: () => false,
-    });
-    render(<ApplicationList applications={baseApps} />);
-    const panel = within(
-      screen.getByRole("region", { name: "Your favorites, within reach." }),
-    );
-    expect(
-      panel.getByRole("link", { name: /renamed/i }).getAttribute("href"),
-    ).toBe("/my-shortcuts?app=renamed");
   });
 
   it("shows a signed-out invitation and an authenticated empty state", () => {
@@ -228,27 +171,5 @@ describe("ApplicationList", () => {
     expect(toggleFavorite).toHaveBeenCalledWith(
       expect.objectContaining({ itemType: "app", appSlug: "sample" }),
     );
-  });
-  it("routes platform-selected public custom keymaps through an exported page", () => {
-    mockUseMergedShortcuts.mockReturnValue({
-      applications: [
-        {
-          ...baseApps[0],
-          keymaps: [
-            { ...baseApps[0].keymaps[0], platforms: ["windows"] },
-            {
-              title: "Custom macOS",
-              customKeymapId: "added-map",
-              platforms: ["macos"],
-              sections: [],
-            },
-          ],
-        },
-      ],
-    });
-    render(<ApplicationList applications={baseApps} />);
-    expect(
-      screen.getByRole("link", { name: /sample,/i }).getAttribute("href"),
-    ).toBe("/apps/sample/default?keymap=added-map");
   });
 });

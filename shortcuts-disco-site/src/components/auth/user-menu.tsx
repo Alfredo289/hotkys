@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { User, Star, LogOut, FolderEdit } from "lucide-react";
+import { User, Star, LogOut } from "lucide-react";
 
 export function UserMenu() {
   return <Suspense fallback={<div className="h-8 w-16" />}><UserMenuContent /></Suspense>;
@@ -64,12 +64,6 @@ function UserMenuContent() {
           <Link href="/profile" className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
             Profile
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/my-shortcuts" className="cursor-pointer">
-            <FolderEdit className="mr-2 h-4 w-4" />
-            My Shortcuts
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

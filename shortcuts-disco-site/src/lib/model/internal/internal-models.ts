@@ -14,7 +14,6 @@ export interface AppShortcuts {
     windowsAppId?: string;
     windowsProcessName?: string;
     hostname?: string;
-    customAppId?: string;
     name: string;
     slug: string;
     source?: string;
@@ -23,7 +22,6 @@ export interface AppShortcuts {
 }
 
 export interface Keymap {
-    customKeymapId?: string;
     title: string;
     platforms?: Platform[];
     sections: Section[];
@@ -38,13 +36,10 @@ export interface SectionShortcut {
     title: string;
     sequence: AtomicShortcut[];
     comment?: string;
-    customizationStatus?: "changed" | "created";
-    customizationId?: string;
     baseSectionTitle?: string;
     baseShortcutTitle?: string;
     baseShortcutId?: string;
     baseShortcutAliases?: string[];
-    customShortcutId?: string;
 }
 
 export interface AtomicShortcut {

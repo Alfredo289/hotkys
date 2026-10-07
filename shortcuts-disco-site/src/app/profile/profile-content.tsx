@@ -101,11 +101,6 @@ export function ProfileContent() {
                 title: "Keep your favorites close.",
                 text: "Jump back to the apps and actions you use most.",
               },
-              {
-                href: "/my-shortcuts",
-                title: "Build your own collection.",
-                text: "Create private apps and shortcuts that fit your workflow.",
-              },
             ].map((item) => (
               <Link
                 key={item.href}

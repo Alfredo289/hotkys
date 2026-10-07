@@ -5,9 +5,8 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Search, Star } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useFavorites } from "@/lib/hooks/use-favorites";
-import { useCustomizations } from "@/lib/hooks/use-customizations";
 import { favoritesService } from "@/lib/services/favorites-service";
-import { ShortcutMerger } from "@/lib/services/shortcut-merger";
+import { withShortcutIdentities } from "@/lib/with-shortcut-identities";
 import { getLoginHref } from "@/lib/auth/redirect";
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/ui/app-icon";
@@ -19,11 +18,7 @@ import type {
   AppShortcuts,
   SectionShortcut,
 } from "@/lib/model/internal/internal-models";
-import type {
-  CustomApp,
-  CustomKeymap,
-  Favorite,
-} from "@/lib/model/user/user-models";
+import type { Favorite } from "@/lib/model/user/user-models";
 
 const filters = [
   ["all", "All"],
@@ -44,32 +39,16 @@ export function FavoritesContent({
     error: favoritesError,
     refetch,
   } = useFavorites();
-  const {
-    customizations,
-    isLoading: customizationsLoading,
-    error: customizationsError,
-    refetch: refetchCustomizations,
-  } = useCustomizations();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | Favorite["itemType"]>("all");
   const [removing, setRemoving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const mergedApps = useMemo(
-    () =>
-      new ShortcutMerger(customizations).mergeShortcuts(
-        applications,
-        customizations,
-      ),
-    [applications, customizations],
+  const catalogApps = useMemo(
+    () => applications.map(withShortcutIdentities),
+    [applications],
   );
   const entries = favorites.map((favorite) =>
-    resolveFavorite(
-      favorite,
-      mergedApps,
-      customizations.customApps,
-      customizations.customKeymaps,
-      applications,
-    ),
+    resolveFavorite(favorite, catalogApps),
   );
   const visible = entries.filter(
     (entry) =>
@@ -84,7 +63,7 @@ export function FavoritesContent({
     setRemoving(favorite.id);
     setError(null);
     try {
-      // Remove the persisted row, retaining stable and custom-app identities.
+      // Remove the persisted row.
       await favoritesService.removeFavorite(favorite.id, user);
       await refetch();
     } catch (error) {
@@ -131,7 +110,7 @@ export function FavoritesContent({
           </Link>
         </Button>
       </div>
-      {authLoading || (user && (favoritesLoading || customizationsLoading)) ? (
+      {authLoading || (user && favoritesLoading) ? (
         <div
           role="status"
           aria-label="Loading favorites"
@@ -144,20 +123,16 @@ export function FavoritesContent({
             />
           ))}
         </div>
-      ) : user && (favoritesError || customizationsError) ? (
+      ) : user && favoritesError ? (
         <div role="alert" className="rounded-2xl border bg-card p-6">
           <h2 className="text-xl font-semibold tracking-tight">
             Couldn’t load your collection
           </h2>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {favoritesError || customizationsError}
-          </p>
+          <p className="mt-3 text-sm text-muted-foreground">{favoritesError}</p>
           <Button
             variant="outline"
             className="mt-5 rounded-xl"
-            onClick={() =>
-              Promise.allSettled([refetch(), refetchCustomizations()])
-            }
+            onClick={() => refetch()}
           >
             Retry loading
           </Button>
@@ -430,96 +405,36 @@ interface FavoriteEntry {
 function resolveFavorite(
   favorite: Favorite,
   apps: AppShortcuts[],
-  customApps: CustomApp[],
-  publicCustomKeymaps: CustomKeymap[],
-  publicCatalog: AppShortcuts[],
 ): FavoriteEntry {
-  const stableLocation =
-    favorite.customShortcutId || favorite.baseShortcutId
-      ? uniqueMatch(
-          apps.flatMap((app) =>
-            app.keymaps.flatMap((keymap) =>
-              keymap.sections.flatMap((section) =>
-                section.hotkeys.map((shortcut) => ({
-                  app,
-                  keymap,
-                  section,
-                  shortcut,
-                })),
-              ),
+  const stableLocation = favorite.baseShortcutId
+    ? uniqueMatch(
+        apps.flatMap((app) =>
+          app.keymaps.flatMap((keymap) =>
+            keymap.sections.flatMap((section) =>
+              section.hotkeys.map((shortcut) => ({
+                app,
+                keymap,
+                section,
+                shortcut,
+              })),
             ),
           ),
-          (entry) =>
-            favorite.customShortcutId
-              ? entry.shortcut.customShortcutId === favorite.customShortcutId ||
-                entry.shortcut.customizationId === favorite.customShortcutId
-              : entry.app.slug === favorite.appSlug &&
-                entry.keymap.title === favorite.keymapTitle &&
-                (entry.shortcut.baseSectionTitle ?? entry.section.title) ===
-                  favorite.sectionTitle &&
-                (entry.shortcut.baseShortcutId === favorite.baseShortcutId ||
-                  !!entry.shortcut.baseShortcutAliases?.includes(
-                    favorite.baseShortcutId!,
-                  )),
-        )
-      : undefined;
-  const publicKeymap = publicCustomKeymaps.find(
-    (keymap) =>
-      keymap.id ===
-      (favorite.customKeymapId ?? stableLocation?.keymap.customKeymapId),
-  );
-  const custom = customApps.find((a) =>
-    favorite.customShortcutId
-      ? a.keymaps.some((k) =>
-          k.sections.some((s) =>
-            s.shortcuts.some((h) => h.id === favorite.customShortcutId),
-          ),
-        )
-      : favorite.customKeymapId
-        ? a.keymaps.some((k) => k.id === favorite.customKeymapId)
-        : favorite.customAppId
-          ? a.id === favorite.customAppId
-          : `custom-${a.slug}` === favorite.appSlug,
-  );
+        ),
+        (entry) =>
+          entry.app.slug === favorite.appSlug &&
+          entry.keymap.title === favorite.keymapTitle &&
+          (entry.shortcut.baseSectionTitle ?? entry.section.title) ===
+            favorite.sectionTitle &&
+          (entry.shortcut.baseShortcutId === favorite.baseShortcutId ||
+            !!entry.shortcut.baseShortcutAliases?.includes(
+              favorite.baseShortcutId!,
+            )),
+      )
+    : undefined;
   const app =
-    stableLocation?.app ??
-    apps.find(
-      (a) =>
-        a.slug ===
-        (custom
-          ? `custom-${custom.slug}`
-          : (publicKeymap?.baseAppSlug ?? favorite.appSlug)),
-    );
-  // Unresolved legacy rows may have duplicate names. Keep them removable
-  // without guessing which private record the user originally saved.
-  const privateKeymap = uniqueMatch(custom?.keymaps, (k) =>
-    favorite.customShortcutId
-      ? k.sections.some((section) =>
-          section.shortcuts.some((h) => h.id === favorite.customShortcutId),
-        )
-      : favorite.customKeymapId
-        ? k.id === favorite.customKeymapId
-        : k.title === favorite.keymapTitle,
-  );
-  const privateSection = uniqueMatch(privateKeymap?.sections, (section) =>
-    favorite.customShortcutId
-      ? section.shortcuts.some((h) => h.id === favorite.customShortcutId)
-      : section.title === favorite.sectionTitle,
-  );
-  const privateShortcut = uniqueMatch(privateSection?.shortcuts, (h) =>
-    favorite.customShortcutId
-      ? h.id === favorite.customShortcutId
-      : h.title === favorite.shortcutTitle,
-  );
-  const keymapTitle =
-    privateKeymap?.title ??
-    publicKeymap?.title ??
-    stableLocation?.keymap.title ??
-    favorite.keymapTitle;
-  const sectionTitle =
-    privateSection?.title ??
-    stableLocation?.section.title ??
-    favorite.sectionTitle;
+    stableLocation?.app ?? apps.find((a) => a.slug === favorite.appSlug);
+  const keymapTitle = stableLocation?.keymap.title ?? favorite.keymapTitle;
+  const sectionTitle = stableLocation?.section.title ?? favorite.sectionTitle;
   const keymap =
     stableLocation?.keymap ??
     app?.keymaps.find((k) => k.title === keymapTitle) ??
@@ -529,25 +444,15 @@ function resolveFavorite(
   );
   const shortcut =
     stableLocation?.shortcut ??
-    (custom
-      ? app?.keymaps
-          .flatMap((k) => k.sections.flatMap((section) => section.hotkeys))
-          .find((h) => h.customizationId === privateShortcut?.id)
-      : section?.hotkeys.find((h) =>
-          favorite.baseShortcutId
-            ? h.baseShortcutId === favorite.baseShortcutId ||
-              !!h.baseShortcutAliases?.includes(favorite.baseShortcutId)
-            : (h.baseShortcutTitle ?? h.title) === favorite.shortcutTitle,
-        ));
-  const addedKeymapId = keymap?.customKeymapId;
-  const routeKeymap = addedKeymapId
-    ? publicCatalog.find((a) => a.slug === app?.slug)?.keymaps[0]
-    : keymap;
-  const href = custom
-    ? `/my-shortcuts?app=${encodeURIComponent(custom.slug)}${privateKeymap ? `&keymap=${encodeURIComponent(privateKeymap.id)}` : ""}${privateShortcut ? `#shortcut-${privateShortcut.id}` : ""}`
-    : app
-      ? `/apps/${app.slug}${routeKeymap ? `/${serializeKeymap(routeKeymap)}` : ""}${addedKeymapId ? `?keymap=${encodeURIComponent(addedKeymapId)}` : ""}${sectionTitle ? `#${encodeURIComponent(sectionTitle)}` : ""}`
-      : "/#applications";
+    section?.hotkeys.find((h) =>
+      favorite.baseShortcutId
+        ? h.baseShortcutId === favorite.baseShortcutId ||
+          !!h.baseShortcutAliases?.includes(favorite.baseShortcutId)
+        : (h.baseShortcutTitle ?? h.title) === favorite.shortcutTitle,
+    );
+  const href = app
+    ? `/apps/${app.slug}${keymap ? `/${serializeKeymap(keymap)}` : ""}${sectionTitle ? `#${encodeURIComponent(sectionTitle)}` : ""}`
+    : "/#applications";
   const appName = app?.name ?? favorite.appSlug ?? "Unavailable app";
   return {
     favorite,
@@ -557,7 +462,7 @@ function resolveFavorite(
     href,
     keymapTitle,
     sectionTitle,
-    groupKey: `${custom?.id ?? app?.slug ?? favorite.appSlug}/${privateKeymap?.id ?? addedKeymapId ?? keymapTitle}`,
+    groupKey: `${app?.slug ?? favorite.appSlug}/${keymapTitle}`,
     title:
       favorite.itemType === "app"
         ? appName
