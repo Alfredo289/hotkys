@@ -60,6 +60,10 @@
               "key": "cmd+b"
             },
             {
+              "title": "Toggle sidebar",
+              "key": "cmd+^"
+            },
+            {
               "title": "Toggle bottom panel",
               "key": "cmd+j"
             },

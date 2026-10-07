@@ -16,6 +16,6 @@ Read `docs/importing-shortcuts.md` first. It holds the table format, key notatio
    `npm run import -- --app <name> --slug <slug> --platform <macos|windows> --file ../shortcut-sources/<slug>.<platform>.md --json`
    Add `--source`, `--bundle-id`, `--hostname` and `--icon` for a new app, and `--keymap` when the diagnostics require it. Done when exit code is `0`. On exit `1`, fix the Markdown at the cited line and re-run; an error that needs the user's call (an ambiguous key, a merge conflict) goes to the user. Exit `2` is a usage mistake in your flags.
 5. **Show.** Present to the user: the preview, the change summary, warnings, notices, the layout-dependent keys, and a list of everything resolved or left out in steps 2 and 3. Done when the user has seen it and approved the write.
-6. **Write.** Re-run the step 4 command with `--write` (and `--overwrite` only when the user asked to rebuild the keymap). Done when the CLI reports the write. Then run `npm run validate-data` and `npm run format-data:check`.
+6. **Write.** Re-run the step 4 command with `--write` (and `--overwrite` only when the user asked to rebuild the keymap). Done when the CLI reports the write. Then run `npm run validate-data` and `npm run format-data:check`. For a new app, also add a one-line entry to `shortcuts-disco-site/src/lib/app-descriptions.ts` (alphabetical by slug); a spec requires one per catalog app.
 
 Commit the `shortcut-sources/` files together with the catalog JSON.
