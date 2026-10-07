@@ -126,13 +126,12 @@ describe("merge rules", () => {
     ]);
   });
 
-  // `^` needs ticket 05 (layout-dependent keys) to validate; `/` stands in until it lands.
-  it("lands 'Toggle Sidebar' cmd+/ next to Codex-style 'Toggle sidebar' cmd+b", () => {
+  it("lands 'Toggle Sidebar' cmd+^ next to Codex-style 'Toggle sidebar' cmd+b", () => {
     codexLike();
-    const report = importShortcuts(catalog.root, request({ markdown: table("| General | Toggle Sidebar | cmd+/ | |"), write: true }));
+    const report = importShortcuts(catalog.root, request({ markdown: table("| General | Toggle Sidebar | cmd+^ | |"), write: true }));
     expect(errors(report)).toEqual([]);
     expect(report.changes).toEqual({ added: 0, alternatives: 1, unchanged: 0, conflicts: 0 });
-    expect(readApp().keymaps[0].sections[0].shortcuts.slice(0, 2)).toEqual([{ title: "Toggle sidebar", key: "cmd+b" }, { title: "Toggle sidebar", key: "cmd+/" }]);
+    expect(readApp().keymaps[0].sections[0].shortcuts.slice(0, 2)).toEqual([{ title: "Toggle sidebar", key: "cmd+b" }, { title: "Toggle sidebar", key: "cmd+^" }]);
   });
 
   it("appends alternatives after the last row of an action with several rows, in source order", () => {
