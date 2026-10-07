@@ -6,6 +6,10 @@ Treat `upstream` (`https://github.com/solomkinmv/hotkys.git`) as strictly read-o
 
 ## Agent skills
 
+### Import shortcuts
+
+To add or update an app's shortcuts in the catalog from any source, use the `import-shortcuts` skill (`.agents/skills/import-shortcuts/`). The rules it follows are in `docs/importing-shortcuts.md`; the site's `/add-shortcuts` page mirrors that document. Source records are committed under `shortcut-sources/`.
+
 ### Issue tracker
 
 Issues and specs live as local markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.

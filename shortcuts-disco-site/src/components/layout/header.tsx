@@ -22,6 +22,7 @@ const links = [
   { href: "/#applications", label: "Apps" },
   { href: "/favorites", label: "Favorites" },
   ...MAIN_NAV_LINKS,
+  { href: "/add-shortcuts", label: "Add shortcuts" },
 ];
 
 export function Header() {

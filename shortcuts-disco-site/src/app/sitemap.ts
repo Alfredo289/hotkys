@@ -34,6 +34,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: ChangeFrequency.WEEKLY,
             priority: 0.5,
         },
+        {
+            url: "https://hotkys.com/add-shortcuts",
+            lastModified: new Date(),
+            changeFrequency: ChangeFrequency.WEEKLY,
+            priority: 0.5,
+        },
     ];
 
     for (const app of getAllShortcuts().applications) {
