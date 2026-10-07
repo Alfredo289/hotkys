@@ -10,7 +10,7 @@ Read `docs/importing-shortcuts.md` first. It holds the table format, key notatio
 ## Steps
 
 1. **Extract.** Read the source (`defuddle` for URLs, `read` for PDFs, view images directly). Done when every shortcut in the source is in hand, or reported as skipped.
-2. **Resolve.** Apply each resolution under "What the skill resolves" in the guide, so the CLI never has to guess. Keep every Action and Comment to 50 characters and every Section to 100. Done when no cell holds ambiguous notation: `Mod`, `Ctrl/Cmd`, click or drag words, `Alt` on macOS.
+2. **Resolve.** Apply each resolution under "What the skill resolves" in the guide, so the CLI never has to guess. Keep every Action and Comment to 50 characters and every Section to 100. Done when no cell holds ambiguous notation: `Mod`, `Ctrl/Cmd`, click or drag words, `Alt` on macOS, a `/` alternative without modifiers (`Cmd+[ / ]`).
 3. **Write one table per platform** to `shortcut-sources/<slug>.<platform>.md`, in the guide's table format. A source without a platform split yields one table; a source covering both yields two. Done when each file exists, and the single-platform entries left out of the other table are listed.
 4. **Preview.** From `shortcuts-disco-site/`, run the CLI without `--write`:
    `npm run import -- --app <name> --slug <slug> --platform <macos|windows> --file ../shortcut-sources/<slug>.<platform>.md --json`

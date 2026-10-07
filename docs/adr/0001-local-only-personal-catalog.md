@@ -24,6 +24,7 @@ This ADR replaces the authentication, authorization and cloud-data requirements 
 The non-auth rules from that spec remain, and the code and tests keep enforcing them:
 
 - One shared parser. Shortcut key parsing lives in `shared/shortcuts-core/` and is copied by `scripts/sync-shortcuts-core.mjs` into the site and the Raycast extension; the generated copies are never edited by hand and CI runs the sync check.
+  The importer's notation normalizer (`shortcuts-disco-site/src/lib/import/key-notation.ts`) is not a second parser: it converts human notation (`⌘⇧Z`, `Ctrl-S`) into catalog keys, then validates them with the shared parser and validator. Catalog key parsing stays in shared core.
 - Deterministic staged catalog generation. The catalog is validated, staged and then published atomically (`src/lib/write/catalog-pipeline.ts`), so invalid input never replaces the previous generation.
 - Reserved slugs. `apps`, `combined-apps`, `key-codes`, `schema` and any slug starting with `custom-` are rejected (`src/lib/load/catalog-rules.ts`).
 - Filename equals slug. `<slug>.json` must contain `"slug": "<slug>"`.
