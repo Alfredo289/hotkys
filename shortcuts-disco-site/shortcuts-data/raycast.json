@@ -1,0 +1,1051 @@
+{
+  "$schema": "https://hotkys.com/schema/shortcut.schema.json",
+  "bundleId": "com.raycast.macos",
+  "name": "Raycast",
+  "slug": "raycast",
+  "source": "https://manual.raycast.com/keyboard-shortcuts",
+  "keymaps": [
+    {
+      "title": "Default",
+      "platforms": [
+        "macos"
+      ],
+      "sections": [
+        {
+          "title": "Global Shortcuts",
+          "shortcuts": [
+            {
+              "title": "Open or close Raycast",
+              "key": "cmd+space",
+              "comment": "Default, can be customized"
+            }
+          ]
+        },
+        {
+          "title": "General Navigation",
+          "shortcuts": [
+            {
+              "title": "Go back",
+              "key": "esc",
+              "comment": "From Root Search, closes Raycast window"
+            },
+            {
+              "title": "Pop to Root",
+              "key": "cmd+esc"
+            },
+            {
+              "title": "Close the Raycast window",
+              "key": "cmd+w"
+            },
+            {
+              "title": "Open Settings",
+              "key": "cmd+,"
+            },
+            {
+              "title": "Open the User Guide",
+              "key": "shift+cmd+/"
+            }
+          ]
+        },
+        {
+          "title": "List Navigation",
+          "shortcuts": [
+            {
+              "title": "Move up",
+              "key": "up"
+            },
+            {
+              "title": "Move down",
+              "key": "down"
+            },
+            {
+              "title": "Previous page of results",
+              "key": "opt+up"
+            },
+            {
+              "title": "Next page of results",
+              "key": "opt+down"
+            },
+            {
+              "title": "Previous section",
+              "key": "cmd+up"
+            },
+            {
+              "title": "Next section",
+              "key": "cmd+down"
+            },
+            {
+              "title": "Move down",
+              "key": "ctrl+n",
+              "comment": "Emacs-style, enabled by default"
+            },
+            {
+              "title": "Move up",
+              "key": "ctrl+p",
+              "comment": "Emacs-style, enabled by default"
+            }
+          ]
+        },
+        {
+          "title": "Root Search",
+          "shortcuts": [
+            {
+              "title": "Run the primary action",
+              "key": "enter"
+            },
+            {
+              "title": "Open the Action Panel",
+              "key": "cmd+k"
+            },
+            {
+              "title": "Navigate to parent directory",
+              "key": "shift+tab"
+            },
+            {
+              "title": "Cycle through search history",
+              "key": "up",
+              "comment": "At top/bottom of list"
+            },
+            {
+              "title": "Cycle through search history",
+              "key": "down",
+              "comment": "At top/bottom of list"
+            },
+            {
+              "title": "Add item to Favorites",
+              "key": "cmd+f"
+            },
+            {
+              "title": "Move favorite up",
+              "key": "shift+cmd+up"
+            },
+            {
+              "title": "Move favorite down",
+              "key": "shift+cmd+down"
+            },
+            {
+              "title": "Configure Command",
+              "key": "cmd+,"
+            },
+            {
+              "title": "Configure Extension",
+              "key": "shift+cmd+,"
+            },
+            {
+              "title": "Disable Command",
+              "key": "shift+cmd+d"
+            }
+          ]
+        },
+        {
+          "title": "Action Panel",
+          "shortcuts": [
+            {
+              "title": "Open or close the Action Panel",
+              "key": "cmd+k"
+            },
+            {
+              "title": "Execute the selected action",
+              "key": "enter"
+            },
+            {
+              "title": "Execute the secondary action",
+              "key": "cmd+enter"
+            },
+            {
+              "title": "Execute the tertiary action",
+              "key": "opt+enter"
+            },
+            {
+              "title": "Close panel or go back from sub-menu",
+              "key": "esc"
+            }
+          ]
+        },
+        {
+          "title": "Common Item Actions",
+          "shortcuts": [
+            {
+              "title": "Open item",
+              "key": "cmd+o"
+            },
+            {
+              "title": "Reveal in Finder",
+              "key": "shift+cmd+o"
+            },
+            {
+              "title": "Open With",
+              "key": "opt+cmd+o"
+            },
+            {
+              "title": "Toggle Quick Look preview",
+              "key": "cmd+y"
+            },
+            {
+              "title": "Edit item",
+              "key": "cmd+e"
+            },
+            {
+              "title": "Show info / details",
+              "key": "cmd+i"
+            },
+            {
+              "title": "Duplicate item",
+              "key": "cmd+d"
+            },
+            {
+              "title": "Pin or unpin item",
+              "key": "cmd+."
+            },
+            {
+              "title": "Show hidden items",
+              "key": "shift+cmd+."
+            }
+          ]
+        },
+        {
+          "title": "Copy & Paste",
+          "shortcuts": [
+            {
+              "title": "Copy",
+              "key": "cmd+c"
+            },
+            {
+              "title": "Copy (secondary)",
+              "key": "shift+cmd+c",
+              "comment": "For example, copy deeplink"
+            },
+            {
+              "title": "Paste",
+              "key": "cmd+v"
+            },
+            {
+              "title": "Paste (secondary)",
+              "key": "shift+cmd+v"
+            }
+          ]
+        },
+        {
+          "title": "Delete",
+          "shortcuts": [
+            {
+              "title": "Delete selected item",
+              "key": "ctrl+x"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Navigation",
+          "shortcuts": [
+            {
+              "title": "Toggle chat history sidebar",
+              "key": "shift+cmd+s"
+            },
+            {
+              "title": "Toggle chat history sidebar",
+              "key": "cmd+b"
+            },
+            {
+              "title": "Search chats",
+              "key": "shift+cmd+f"
+            },
+            {
+              "title": "Jump to chat 1",
+              "key": "cmd+1",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 2",
+              "key": "cmd+2",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 3",
+              "key": "cmd+3",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 4",
+              "key": "cmd+4",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 5",
+              "key": "cmd+5",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 6",
+              "key": "cmd+6",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 7",
+              "key": "cmd+7",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 8",
+              "key": "cmd+8",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 9",
+              "key": "cmd+9",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 10",
+              "key": "cmd+0",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Send selected item to AI Chat",
+              "key": "cmd+j",
+              "comment": "From other views"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Find in Chat",
+          "shortcuts": [
+            {
+              "title": "Open Find in Chat",
+              "key": "cmd+f"
+            },
+            {
+              "title": "Next match",
+              "key": "enter"
+            },
+            {
+              "title": "Next match",
+              "key": "cmd+g"
+            },
+            {
+              "title": "Previous match",
+              "key": "shift+enter"
+            },
+            {
+              "title": "Previous match",
+              "key": "shift+cmd+g"
+            },
+            {
+              "title": "Close the find bar",
+              "key": "esc"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Composer & Messages",
+          "shortcuts": [
+            {
+              "title": "Add attachment to composer",
+              "key": "shift+cmd+a"
+            },
+            {
+              "title": "Branch chat from a message",
+              "key": "shift+cmd+b"
+            },
+            {
+              "title": "Edit your last message",
+              "key": "up",
+              "comment": "Empty composer; up/down steps through messages"
+            },
+            {
+              "title": "Start or accept dictation",
+              "key": "ctrl+m"
+            },
+            {
+              "title": "Cancel dictation",
+              "key": "esc",
+              "comment": "Dictation in progress"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Model & Settings",
+          "shortcuts": [
+            {
+              "title": "Change AI model",
+              "key": "shift+cmd+m"
+            },
+            {
+              "title": "Change creativity level",
+              "key": "shift+cmd+y"
+            },
+            {
+              "title": "Change reasoning effort",
+              "key": "shift+cmd+u"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Management",
+          "shortcuts": [
+            {
+              "title": "Archive chat",
+              "key": "opt+cmd+a"
+            },
+            {
+              "title": "Delete all unpinned chats",
+              "key": "ctrl+shift+x",
+              "comment": "Moves them to Recently Deleted"
+            },
+            {
+              "title": "Create project",
+              "key": "ctrl+cmd+n"
+            },
+            {
+              "title": "Move to project",
+              "key": "ctrl+cmd+m"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Feedback",
+          "shortcuts": [
+            {
+              "title": "Upvote / Good response",
+              "key": "shift+cmd+="
+            },
+            {
+              "title": "Downvote / Bad response",
+              "key": "shift+cmd+-"
+            }
+          ]
+        },
+        {
+          "title": "Forms",
+          "shortcuts": [
+            {
+              "title": "Submit the form",
+              "key": "cmd+enter"
+            },
+            {
+              "title": "Move to the next field",
+              "key": "tab"
+            },
+            {
+              "title": "Move to the previous field",
+              "key": "shift+tab"
+            },
+            {
+              "title": "Cancel and go back",
+              "key": "esc"
+            }
+          ]
+        },
+        {
+          "title": "Text Editing",
+          "shortcuts": [
+            {
+              "title": "Select all",
+              "key": "cmd+a"
+            },
+            {
+              "title": "Copy",
+              "key": "cmd+c"
+            },
+            {
+              "title": "Cut",
+              "key": "cmd+x"
+            },
+            {
+              "title": "Paste",
+              "key": "cmd+v"
+            },
+            {
+              "title": "Undo",
+              "key": "cmd+z"
+            },
+            {
+              "title": "Redo",
+              "key": "shift+cmd+z"
+            }
+          ]
+        },
+        {
+          "title": "Alternative Navigation Bindings",
+          "shortcuts": [
+            {
+              "title": "Move down (Emacs)",
+              "key": "ctrl+n",
+              "comment": "Emacs bindings, enabled by default"
+            },
+            {
+              "title": "Move up (Emacs)",
+              "key": "ctrl+p",
+              "comment": "Emacs bindings, enabled by default"
+            },
+            {
+              "title": "Move right (Emacs)",
+              "key": "ctrl+f",
+              "comment": "Emacs bindings, enabled by default"
+            },
+            {
+              "title": "Move left (Emacs)",
+              "key": "ctrl+b",
+              "comment": "Emacs bindings, enabled by default"
+            },
+            {
+              "title": "Move down (Vim)",
+              "key": "ctrl+j",
+              "comment": "Vim bindings, optional"
+            },
+            {
+              "title": "Move up (Vim)",
+              "key": "ctrl+k",
+              "comment": "Vim bindings, optional"
+            },
+            {
+              "title": "Move right (Vim)",
+              "key": "ctrl+l",
+              "comment": "Vim bindings, optional"
+            },
+            {
+              "title": "Move left (Vim)",
+              "key": "ctrl+h",
+              "comment": "Vim bindings, optional"
+            }
+          ]
+        },
+        {
+          "title": "Extensions Support & Feedback",
+          "shortcuts": [
+            {
+              "title": "Report a bug",
+              "key": "shift+cmd+b"
+            },
+            {
+              "title": "Request a feature",
+              "key": "opt+cmd+f"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Default (Windows)",
+      "platforms": [
+        "windows"
+      ],
+      "sections": [
+        {
+          "title": "Global Shortcuts",
+          "shortcuts": [
+            {
+              "title": "Open or close Raycast",
+              "key": "alt+space",
+              "comment": "Default, can be customized"
+            }
+          ]
+        },
+        {
+          "title": "General Navigation",
+          "shortcuts": [
+            {
+              "title": "Go back",
+              "key": "esc",
+              "comment": "From Root Search, closes Raycast window"
+            },
+            {
+              "title": "Pop to Root",
+              "key": "shift+esc"
+            },
+            {
+              "title": "Close the Raycast window",
+              "key": "ctrl+w"
+            },
+            {
+              "title": "Open Settings",
+              "key": "ctrl+,"
+            },
+            {
+              "title": "Open the User Guide",
+              "key": "ctrl+shift+/"
+            }
+          ]
+        },
+        {
+          "title": "List Navigation",
+          "shortcuts": [
+            {
+              "title": "Move up",
+              "key": "up"
+            },
+            {
+              "title": "Move up",
+              "key": "ctrl+p",
+              "comment": "Emacs-style, enabled by default"
+            },
+            {
+              "title": "Move down",
+              "key": "down"
+            },
+            {
+              "title": "Move down",
+              "key": "ctrl+n",
+              "comment": "Emacs-style, enabled by default"
+            },
+            {
+              "title": "Previous page of results",
+              "key": "alt+up"
+            },
+            {
+              "title": "Next page of results",
+              "key": "alt+down"
+            },
+            {
+              "title": "Previous section",
+              "key": "ctrl+up"
+            },
+            {
+              "title": "Next section",
+              "key": "ctrl+down"
+            }
+          ]
+        },
+        {
+          "title": "Root Search",
+          "shortcuts": [
+            {
+              "title": "Run the primary action",
+              "key": "enter"
+            },
+            {
+              "title": "Open the Action Panel",
+              "key": "ctrl+k"
+            },
+            {
+              "title": "Navigate to parent directory",
+              "key": "shift+tab"
+            },
+            {
+              "title": "Cycle through search history",
+              "key": "up",
+              "comment": "At top/bottom of list"
+            },
+            {
+              "title": "Cycle through search history",
+              "key": "down",
+              "comment": "At top/bottom of list"
+            },
+            {
+              "title": "Add item to Favorites",
+              "key": "ctrl+f"
+            },
+            {
+              "title": "Move favorite up",
+              "key": "ctrl+shift+up"
+            },
+            {
+              "title": "Move favorite down",
+              "key": "ctrl+shift+down"
+            },
+            {
+              "title": "Configure Command",
+              "key": "ctrl+,"
+            },
+            {
+              "title": "Configure Extension",
+              "key": "ctrl+shift+,"
+            },
+            {
+              "title": "Disable Command",
+              "key": "ctrl+shift+d"
+            }
+          ]
+        },
+        {
+          "title": "Action Panel",
+          "shortcuts": [
+            {
+              "title": "Open or close the Action Panel",
+              "key": "ctrl+k"
+            },
+            {
+              "title": "Execute the selected action",
+              "key": "enter"
+            },
+            {
+              "title": "Execute the secondary action",
+              "key": "ctrl+enter"
+            },
+            {
+              "title": "Execute the tertiary action",
+              "key": "ctrl+shift+enter"
+            },
+            {
+              "title": "Close panel or go back from sub-menu",
+              "key": "esc"
+            }
+          ]
+        },
+        {
+          "title": "Common Item Actions",
+          "shortcuts": [
+            {
+              "title": "Open item",
+              "key": "ctrl+o"
+            },
+            {
+              "title": "Reveal in File Explorer",
+              "key": "ctrl+shift+o"
+            },
+            {
+              "title": "Open With",
+              "key": "ctrl+alt+o"
+            },
+            {
+              "title": "Toggle Quick Look preview",
+              "key": "ctrl+y"
+            },
+            {
+              "title": "Edit item",
+              "key": "ctrl+e"
+            },
+            {
+              "title": "Show info / details",
+              "key": "ctrl+i"
+            },
+            {
+              "title": "Duplicate item",
+              "key": "ctrl+d"
+            },
+            {
+              "title": "Pin or unpin item",
+              "key": "ctrl+."
+            },
+            {
+              "title": "Show hidden items",
+              "key": "ctrl+shift+."
+            }
+          ]
+        },
+        {
+          "title": "Copy & Paste",
+          "shortcuts": [
+            {
+              "title": "Copy",
+              "key": "ctrl+c"
+            },
+            {
+              "title": "Copy (secondary)",
+              "key": "ctrl+shift+c",
+              "comment": "For example, copy deeplink"
+            },
+            {
+              "title": "Paste",
+              "key": "ctrl+v"
+            },
+            {
+              "title": "Paste (secondary)",
+              "key": "ctrl+shift+v"
+            }
+          ]
+        },
+        {
+          "title": "Delete",
+          "shortcuts": [
+            {
+              "title": "Delete selected item",
+              "key": "ctrl+x"
+            },
+            {
+              "title": "Delete all",
+              "key": "ctrl+shift+x"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Navigation",
+          "shortcuts": [
+            {
+              "title": "Toggle chat history sidebar",
+              "key": "ctrl+shift+s"
+            },
+            {
+              "title": "Toggle chat history sidebar",
+              "key": "ctrl+b"
+            },
+            {
+              "title": "Search chats",
+              "key": "ctrl+shift+f"
+            },
+            {
+              "title": "Jump to chat 1",
+              "key": "ctrl+1",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 2",
+              "key": "ctrl+2",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 3",
+              "key": "ctrl+3",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 4",
+              "key": "ctrl+4",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 5",
+              "key": "ctrl+5",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 6",
+              "key": "ctrl+6",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 7",
+              "key": "ctrl+7",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 8",
+              "key": "ctrl+8",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 9",
+              "key": "ctrl+9",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Jump to chat 10",
+              "key": "ctrl+0",
+              "comment": "Sidebar chats; hold the modifier for numbers"
+            },
+            {
+              "title": "Send selected item to AI Chat",
+              "key": "ctrl+j",
+              "comment": "From other views"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Find in Chat",
+          "shortcuts": [
+            {
+              "title": "Open Find in Chat",
+              "key": "ctrl+f"
+            },
+            {
+              "title": "Next match",
+              "key": "enter"
+            },
+            {
+              "title": "Next match",
+              "key": "ctrl+g"
+            },
+            {
+              "title": "Previous match",
+              "key": "shift+enter"
+            },
+            {
+              "title": "Previous match",
+              "key": "ctrl+shift+g"
+            },
+            {
+              "title": "Close the find bar",
+              "key": "esc"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Composer & Messages",
+          "shortcuts": [
+            {
+              "title": "Add attachment to composer",
+              "key": "ctrl+shift+a"
+            },
+            {
+              "title": "Branch chat from a message",
+              "key": "ctrl+shift+b"
+            },
+            {
+              "title": "Edit your last message",
+              "key": "up",
+              "comment": "Empty composer; up/down steps through messages"
+            },
+            {
+              "title": "Start or accept dictation",
+              "key": "ctrl+m"
+            },
+            {
+              "title": "Cancel dictation",
+              "key": "esc",
+              "comment": "Dictation in progress"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Model & Settings",
+          "shortcuts": [
+            {
+              "title": "Change AI model",
+              "key": "ctrl+shift+m"
+            },
+            {
+              "title": "Change creativity level",
+              "key": "ctrl+shift+y"
+            },
+            {
+              "title": "Change reasoning effort",
+              "key": "ctrl+shift+u"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Management",
+          "shortcuts": [
+            {
+              "title": "Archive chat",
+              "key": "ctrl+alt+a"
+            },
+            {
+              "title": "Delete all unpinned chats",
+              "key": "ctrl+alt+d",
+              "comment": "Moves them to Recently Deleted"
+            },
+            {
+              "title": "Create project",
+              "key": "shift+alt+n"
+            },
+            {
+              "title": "Move to project",
+              "key": "shift+alt+m"
+            }
+          ]
+        },
+        {
+          "title": "AI Chat: Feedback",
+          "shortcuts": [
+            {
+              "title": "Upvote / Good response",
+              "key": "ctrl+shift+="
+            },
+            {
+              "title": "Downvote / Bad response",
+              "key": "ctrl+shift+-"
+            }
+          ]
+        },
+        {
+          "title": "Forms",
+          "shortcuts": [
+            {
+              "title": "Submit the form",
+              "key": "ctrl+enter"
+            },
+            {
+              "title": "Move to the next field",
+              "key": "tab"
+            },
+            {
+              "title": "Move to the previous field",
+              "key": "shift+tab"
+            },
+            {
+              "title": "Cancel and go back",
+              "key": "esc"
+            }
+          ]
+        },
+        {
+          "title": "Text Editing",
+          "shortcuts": [
+            {
+              "title": "Select all",
+              "key": "ctrl+a"
+            },
+            {
+              "title": "Copy",
+              "key": "ctrl+c"
+            },
+            {
+              "title": "Cut",
+              "key": "ctrl+x"
+            },
+            {
+              "title": "Paste",
+              "key": "ctrl+v"
+            },
+            {
+              "title": "Undo",
+              "key": "ctrl+z"
+            },
+            {
+              "title": "Redo",
+              "key": "ctrl+shift+z"
+            }
+          ]
+        },
+        {
+          "title": "Alternative Navigation Bindings",
+          "shortcuts": [
+            {
+              "title": "Move down (Emacs)",
+              "key": "ctrl+n",
+              "comment": "Emacs bindings, enabled by default"
+            },
+            {
+              "title": "Move up (Emacs)",
+              "key": "ctrl+p",
+              "comment": "Emacs bindings, enabled by default"
+            },
+            {
+              "title": "Move right (Emacs)",
+              "key": "ctrl+f",
+              "comment": "Emacs bindings, enabled by default"
+            },
+            {
+              "title": "Move left (Emacs)",
+              "key": "ctrl+b",
+              "comment": "Emacs bindings, enabled by default"
+            },
+            {
+              "title": "Move down (Vim)",
+              "key": "ctrl+j",
+              "comment": "Vim bindings, optional"
+            },
+            {
+              "title": "Move up (Vim)",
+              "key": "ctrl+k",
+              "comment": "Vim bindings, optional"
+            },
+            {
+              "title": "Move right (Vim)",
+              "key": "ctrl+l",
+              "comment": "Vim bindings, optional"
+            },
+            {
+              "title": "Move left (Vim)",
+              "key": "ctrl+h",
+              "comment": "Vim bindings, optional"
+            }
+          ]
+        },
+        {
+          "title": "Extensions Support & Feedback",
+          "shortcuts": [
+            {
+              "title": "Report a bug",
+              "key": "ctrl+shift+b"
+            },
+            {
+              "title": "Request a feature",
+              "key": "ctrl+alt+f"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
