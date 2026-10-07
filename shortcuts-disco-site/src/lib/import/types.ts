@@ -24,7 +24,7 @@ export interface ImportRequest {
   icon?: string;
   /** Write the result. Default: dry run. */
   write?: boolean;
-  /** Replace the target keymap wholesale (ticket 07). */
+  /** Replace the target keymap wholesale instead of merging into it. */
   overwrite?: boolean;
 }
 
@@ -45,7 +45,11 @@ export interface PreviewEntry {
   comment?: string;
   /** 1-based source line the entry came from. */
   line: number;
+  /** What merging does with this entry. Only set when importing into an existing app. */
+  status?: EntryStatus;
 }
+
+export type EntryStatus = "added" | "alternative" | "unchanged" | "conflict";
 
 export interface PreviewSection {
   title: string;
@@ -54,7 +58,8 @@ export interface PreviewSection {
 
 export interface ImportPreview {
   keymap: string;
-  platforms: ImportPlatform[];
+  /** Platforms of the target keymap; may include linux (or be empty) when merging into an existing keymap. */
+  platforms: Platform[];
   sections: PreviewSection[];
 }
 

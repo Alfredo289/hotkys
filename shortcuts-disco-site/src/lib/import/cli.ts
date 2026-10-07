@@ -11,13 +11,13 @@ const USAGE = `Usage: npm run import -- --app <name> --slug <slug> --platform <m
 Dry run by default: prints a preview and diagnostics, writes nothing.
 
 Options:
-  --keymap <title>     Target keymap title
-  --source <url>       Source URL (new apps)
-  --bundle-id <id>     macOS bundle ID (new apps)
-  --hostname <host>    Website hostname (new apps)
-  --icon <path|url>    Icon under public/ or an http(s) URL (new apps)
+  --keymap <title>     Target keymap title (required when several keymaps match)
+  --source <url>       Source URL (new apps only)
+  --bundle-id <id>     macOS bundle ID (new apps only)
+  --hostname <host>    Website hostname (new apps only)
+  --icon <path|url>    Icon under public/ or an http(s) URL (new apps only)
   --write              Write the result to the catalog
-  --overwrite          Replace the target keymap (not supported yet)
+  --overwrite          Replace the target keymap wholesale instead of merging
   --json               Print the report as JSON
 
 Exit codes: 0 success, 1 errors (nothing written), 2 usage error.`;
@@ -64,7 +64,7 @@ function formatReport(report: ImportReport, request: ImportRequest): string {
     lines.push(`${report.app.created ? "New app" : "App"} ${report.app.name} (${report.app.slug}) - keymap "${report.preview.keymap}" [${report.preview.platforms.join(", ")}]`);
     for (const section of report.preview.sections) {
       lines.push("", `${section.title}`);
-      for (const entry of section.entries) lines.push(`  ${entry.key ?? "-"}  ${entry.title}${entry.comment ? ` (${entry.comment})` : ""}  [line ${entry.line}]`);
+      for (const entry of section.entries) lines.push(`  ${entry.key ?? "-"}  ${entry.title}${entry.comment ? ` (${entry.comment})` : ""}  [line ${entry.line}]${entry.status ? ` ${entry.status}` : ""}`);
     }
     lines.push("");
   }
