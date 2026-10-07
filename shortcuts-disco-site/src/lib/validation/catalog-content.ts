@@ -4,7 +4,7 @@ import {
   isSafeImageLocation,
 } from "@/lib/validation/resource-location";
 
-export const USER_CONTENT_LIMITS = {
+export const CATALOG_LIMITS = {
   appName: 100,
   slug: 80,
   bundleId: 255,
@@ -17,15 +17,14 @@ export const USER_CONTENT_LIMITS = {
   shortcutTitle: 50,
   shortcutKey: 255,
   shortcutComment: 50,
-  customApps: 25,
-  customKeymaps: 100,
-  customSections: 500,
-  customShortcuts: 2000,
+  keymaps: 100,
+  sections: 500,
+  shortcuts: 2000,
 } as const;
 
-export const CUSTOM_APP_SLUG_PATTERN = /^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$/;
+export const APP_SLUG_PATTERN = /^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$/;
 
-interface CustomAppMetadata {
+interface AppMetadata {
   name?: string;
   slug?: string;
   bundleId?: string | null;
@@ -36,28 +35,28 @@ interface CustomAppMetadata {
   icon?: string | null;
 }
 
-export function validateCustomAppMetadata(app: CustomAppMetadata): void {
+export function validateAppMetadata(app: AppMetadata): void {
   if (app.name !== undefined) {
-    validateRequiredText(app.name, "App name", USER_CONTENT_LIMITS.appName);
+    validateRequiredText(app.name, "App name", CATALOG_LIMITS.appName);
   }
   if (app.slug !== undefined) {
-    validateRequiredText(app.slug, "Slug", USER_CONTENT_LIMITS.slug);
-    if (!CUSTOM_APP_SLUG_PATTERN.test(app.slug)) {
+    validateRequiredText(app.slug, "Slug", CATALOG_LIMITS.slug);
+    if (!APP_SLUG_PATTERN.test(app.slug)) {
       throw new Error(
         "Slug must contain only letters, numbers, and single hyphens",
       );
     }
   }
-  validateOptionalText(app.bundleId, "Bundle ID", USER_CONTENT_LIMITS.bundleId);
+  validateOptionalText(app.bundleId, "Bundle ID", CATALOG_LIMITS.bundleId);
   validateOptionalText(
     app.windowsAppId,
     "Windows app ID",
-    USER_CONTENT_LIMITS.windowsAppId,
+    CATALOG_LIMITS.windowsAppId,
   );
   validateOptionalText(
     app.windowsProcessName,
     "Windows process name",
-    USER_CONTENT_LIMITS.windowsProcessName,
+    CATALOG_LIMITS.windowsProcessName,
   );
   if (
     app.windowsAppId &&
@@ -72,9 +71,9 @@ export function validateCustomAppMetadata(app: CustomAppMetadata): void {
       "Windows process name must be an executable name without .exe or a path",
     );
   }
-  validateOptionalText(app.hostname, "Hostname", USER_CONTENT_LIMITS.hostname);
-  validateOptionalText(app.source, "Source URL", USER_CONTENT_LIMITS.urlOrPath);
-  validateOptionalText(app.icon, "Image path", USER_CONTENT_LIMITS.urlOrPath);
+  validateOptionalText(app.hostname, "Hostname", CATALOG_LIMITS.hostname);
+  validateOptionalText(app.source, "Source URL", CATALOG_LIMITS.urlOrPath);
+  validateOptionalText(app.icon, "Image path", CATALOG_LIMITS.urlOrPath);
   if (app.source && !isHttpUrl(app.source)) {
     throw new Error("Source URL must use http or https");
   }

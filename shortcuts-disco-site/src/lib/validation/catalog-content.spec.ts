@@ -1,26 +1,26 @@
 import { describe, expect, it } from "@jest/globals";
 import {
-  USER_CONTENT_LIMITS,
-  validateCustomAppMetadata,
-} from "./user-content";
+  CATALOG_LIMITS,
+  validateAppMetadata,
+} from "./catalog-content";
 
 describe("user content validation", () => {
   it.each([
-    ["name", "App name", USER_CONTENT_LIMITS.appName],
-    ["slug", "Slug", USER_CONTENT_LIMITS.slug],
-    ["bundleId", "Bundle ID", USER_CONTENT_LIMITS.bundleId],
-    ["windowsAppId", "Windows app ID", USER_CONTENT_LIMITS.windowsAppId],
+    ["name", "App name", CATALOG_LIMITS.appName],
+    ["slug", "Slug", CATALOG_LIMITS.slug],
+    ["bundleId", "Bundle ID", CATALOG_LIMITS.bundleId],
+    ["windowsAppId", "Windows app ID", CATALOG_LIMITS.windowsAppId],
     [
       "windowsProcessName",
       "Windows process name",
-      USER_CONTENT_LIMITS.windowsProcessName,
+      CATALOG_LIMITS.windowsProcessName,
     ],
-    ["hostname", "Hostname", USER_CONTENT_LIMITS.hostname],
-    ["source", "Source URL", USER_CONTENT_LIMITS.urlOrPath],
-    ["icon", "Image path", USER_CONTENT_LIMITS.urlOrPath],
-  ] as const)("limits custom app %s", (field, label, limit) => {
+    ["hostname", "Hostname", CATALOG_LIMITS.hostname],
+    ["source", "Source URL", CATALOG_LIMITS.urlOrPath],
+    ["icon", "Image path", CATALOG_LIMITS.urlOrPath],
+  ] as const)("limits app %s", (field, label, limit) => {
     expect(() =>
-      validateCustomAppMetadata({ [field]: "x".repeat(limit + 1) }),
+      validateAppMetadata({ [field]: "x".repeat(limit + 1) }),
     ).toThrow(`${label} must be ${limit} characters or fewer`);
   });
 
@@ -34,7 +34,7 @@ describe("user content validation", () => {
     "Code\r",
     "$(Code)",
   ])("rejects invalid Windows process names %p", (windowsProcessName) => {
-    expect(() => validateCustomAppMetadata({ windowsProcessName })).toThrow(
+    expect(() => validateAppMetadata({ windowsProcessName })).toThrow(
       "Windows process name must be an executable name without .exe or a path",
     );
   });
@@ -42,7 +42,7 @@ describe("user content validation", () => {
   it.each(["   ", "Vendor\nApp", "Vendor\u007fApp"])(
     "rejects invalid Windows app IDs %p",
     (windowsAppId) => {
-      expect(() => validateCustomAppMetadata({ windowsAppId })).toThrow(
+      expect(() => validateAppMetadata({ windowsAppId })).toThrow(
         "Windows app ID must be non-empty and contain no control characters",
       );
     },
@@ -57,7 +57,7 @@ describe("user content validation", () => {
       "x".repeat(100),
     ]) {
       expect(() =>
-        validateCustomAppMetadata({
+        validateAppMetadata({
           windowsAppId: "Vendor.Package!App",
           windowsProcessName,
         }),
@@ -81,7 +81,7 @@ describe("user content validation", () => {
   ])(
     "rejects unsafe source URL scheme %p",
     (source) => {
-      expect(() => validateCustomAppMetadata({ source })).toThrow(
+      expect(() => validateAppMetadata({ source })).toThrow(
         "Source URL must use http or https",
       );
     },
@@ -98,7 +98,7 @@ describe("user content validation", () => {
     "//example.com/icon.png",
     "\\\\example.com\\icon.png",
   ])("rejects unsafe image location %p", (icon) => {
-    expect(() => validateCustomAppMetadata({ icon })).toThrow(
+    expect(() => validateAppMetadata({ icon })).toThrow(
       "Image path must be a relative path or an http/https URL",
     );
   });
@@ -111,6 +111,6 @@ describe("user content validation", () => {
     "https://example.com/app.png",
     "http://localhost:3000/app.png",
   ])("accepts safe image location %p", (icon) => {
-    expect(() => validateCustomAppMetadata({ icon })).not.toThrow();
+    expect(() => validateAppMetadata({ icon })).not.toThrow();
   });
 });
