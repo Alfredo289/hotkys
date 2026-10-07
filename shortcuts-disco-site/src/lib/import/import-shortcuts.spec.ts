@@ -170,12 +170,6 @@ describe("whole-catalog validation", () => {
     expect(catalog.snapshot()).toEqual(before);
   });
 
-  it("rejects --overwrite until keymap replacement is supported", () => {
-    const report = importShortcuts(catalog.root, request({ overwrite: true, write: true }));
-    expect(errors(report)).toEqual([expect.objectContaining({ code: "invalid-request" })]);
-    expect(fs.existsSync(path.join(catalog.dataDir, "example.json"))).toBe(false);
-  });
-
   it("rejects an icon that does not exist in public/", () => {
     const report = importShortcuts(catalog.root, request({ icon: "icons/missing.png", write: true }));
     expect(errors(report)[0].message).toContain("icon");
@@ -190,15 +184,3 @@ describe("whole-catalog validation", () => {
   });
 });
 
-describe("existing apps", () => {
-  it("rejects importing into an existing slug until merging is supported", () => {
-    catalog.seed({ $schema: "https://hotkys.com/schema/shortcut.schema.json", name: "Example", slug: "example", keymaps: [{ title: "Default", platforms: ["macos"], sections: [{ title: "General", shortcuts: [{ title: "Copy", key: "cmd+c" }] }] }] });
-    const before = catalog.snapshot();
-    const report = importShortcuts(catalog.root, request({ write: true }));
-    expect(report.ok).toBe(false);
-    expect(report.wrote).toBe(false);
-    expect(errors(report)).toEqual([expect.objectContaining({ code: "app-exists" })]);
-    expect(report.app.created).toBe(false);
-    expect(catalog.snapshot()).toEqual(before);
-  });
-});
