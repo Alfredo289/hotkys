@@ -3,7 +3,7 @@ import path from "node:path";
 import type { InputApp } from "../model/input/input-models";
 import { supportsPlatform } from "../shortcut-core/platforms";
 import { ShortcutsParser } from "./input-parser";
-import { getWindowsKeyNames } from "./windows-key-names";
+import { getWindowsKeyNames } from "../shortcut-core/windows-keys";
 import { validateWindowsSequence } from "../engine/windows-shortcut-runner";
 jest.mock("@raycast/utils", () => ({ runPowerShellScript: jest.fn() }));
 

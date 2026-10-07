@@ -1,4 +1,4 @@
-import { getWindowsKeyNames } from "../shortcuts-raycast-extension/src/load/windows-key-names";
+import { getWindowsKeyNames } from "../shared/shortcuts-core/windows-keys";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
@@ -53,7 +53,7 @@ async function main() {
     watcher = watchCatalog(root); await watcher.ready;
     const added = { ...combined[0], $schema: "https://hotkys.com/schema/shortcut.schema.json", slug: "added", name: "Added", bundleId: "com.example.Added" };
     save("added", added); await until(() => read("data/macos/apps.json").apps.some((app: { slug: string }) => app.slug === "added"));
-    added.keymaps[0].platforms = ["windows"]; save("added", added);
+    added.keymaps = [{ title: "Default", platforms: ["windows"], sections: [{ title: "General", shortcuts: [{ title: "Zoom", key: "ctrl+c" }] }] }]; save("added", added);
     await until(() => !fs.existsSync(path.join(root, "public/data/macos/added.json")) && fs.existsSync(path.join(root, "public/data/windows/added.json")));
     fs.unlinkSync(path.join(source, "added.json")); await until(() => !fs.existsSync(path.join(root, "public/data/windows/added.json")));
     const schema = read("schema/shortcut.schema.json"); schema.title = "Watcher schema test";

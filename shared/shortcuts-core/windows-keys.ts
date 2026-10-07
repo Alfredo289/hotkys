@@ -1,35 +1,31 @@
-import type { KeyCodes } from "./key-codes-provider";
+// Windows base-key vocabulary: the key names that may end a chord in a Windows keymap.
+// ctrl, shift, alt and win are listed because modifier-only bindings exist ("hold shift"); the macOS-only cmd and opt
+// are not valid on Windows at all and must not appear here.
+export function getWindowsKeyNames(): Record<string, string> {
+  const keys: Record<string, string> = {};
 
-// Windows key names for validation only (not numeric codes like macOS)
-// These are the key names that can appear in shortcut data files
-export function getWindowsKeyNames(): KeyCodes {
-  const keys: KeyCodes = {};
-
-  // Letters
+  // Letters a-z
   for (let i = 0; i < 26; i++) {
-    const letter = String.fromCharCode(97 + i); // a-z
+    const letter = String.fromCharCode(97 + i);
     keys[letter] = letter;
   }
 
-  // Numbers
+  // Digits 0-9
   for (let i = 0; i <= 9; i++) {
     keys[i.toString()] = i.toString();
   }
 
-  // Function keys
+  // Function keys f1-f24
   for (let i = 1; i <= 24; i++) {
     keys[`f${i}`] = `f${i}`;
   }
 
-  // Special keys
   const specialKeys = [
     "plus",
     "hyphen",
     "ctrl",
     "shift",
     "alt",
-    "opt",
-    "cmd",
     "win",
     "enter",
     "tab",
@@ -58,11 +54,6 @@ export function getWindowsKeyNames(): KeyCodes {
     "break",
   ];
 
-  specialKeys.forEach((key) => {
-    keys[key] = key;
-  });
-
-  // Symbols and punctuation
   const symbols = [
     "`",
     "-",
@@ -98,9 +89,9 @@ export function getWindowsKeyNames(): KeyCodes {
     "?",
   ];
 
-  symbols.forEach((symbol) => {
-    keys[symbol] = symbol;
-  });
+  for (const key of [...specialKeys, ...symbols]) {
+    keys[key] = key;
+  }
 
   return keys;
 }
