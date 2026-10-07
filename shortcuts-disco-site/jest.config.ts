@@ -11,7 +11,7 @@ const config: Config = {
   moduleNameMapper: { "^@/(.*)$": "<rootDir>/src/$1" },
   setupFilesAfterEnv: ["./jest.setup.ts"],
   testEnvironment: "jsdom",
-  testPathIgnorePatterns: ["__tests__/helpers.ts", "<rootDir>/supabase/tests/"],
+  testPathIgnorePatterns: ["__tests__/helpers.ts"],
 };
 
 export default createJestConfig(config);

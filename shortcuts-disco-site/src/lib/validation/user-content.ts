@@ -5,7 +5,6 @@ import {
 } from "@/lib/validation/resource-location";
 
 export const USER_CONTENT_LIMITS = {
-  displayName: 100,
   appName: 100,
   slug: 80,
   bundleId: 255,
@@ -18,12 +17,10 @@ export const USER_CONTENT_LIMITS = {
   shortcutTitle: 50,
   shortcutKey: 255,
   shortcutComment: 50,
-  baseShortcutId: 1024,
   customApps: 25,
   customKeymaps: 100,
   customSections: 500,
   customShortcuts: 2000,
-  favorites: 500,
 } as const;
 
 export const CUSTOM_APP_SLUG_PATTERN = /^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$/;
@@ -37,14 +34,6 @@ interface CustomAppMetadata {
   hostname?: string | null;
   source?: string | null;
   icon?: string | null;
-}
-
-interface FavoriteMetadata {
-  appSlug?: string;
-  keymapTitle?: string;
-  sectionTitle?: string;
-  shortcutTitle?: string;
-  baseShortcutId?: string;
 }
 
 export function validateCustomAppMetadata(app: CustomAppMetadata): void {
@@ -94,46 +83,6 @@ export function validateCustomAppMetadata(app: CustomAppMetadata): void {
       "Image path must be a relative path or an http/https URL",
     );
   }
-}
-
-export function validateFavoriteMetadata(favorite: FavoriteMetadata): void {
-  validateOptionalText(favorite.appSlug, "App slug", USER_CONTENT_LIMITS.slug + 7);
-  validateOptionalText(
-    favorite.keymapTitle,
-    "Keymap title",
-    USER_CONTENT_LIMITS.keymapTitle,
-  );
-  validateOptionalText(
-    favorite.sectionTitle,
-    "Section title",
-    USER_CONTENT_LIMITS.sectionTitle,
-  );
-  validateOptionalText(
-    favorite.shortcutTitle,
-    "Shortcut title",
-    USER_CONTENT_LIMITS.shortcutTitle,
-  );
-  validateOptionalText(
-    favorite.baseShortcutId,
-    "Base shortcut ID",
-    USER_CONTENT_LIMITS.baseShortcutId,
-  );
-}
-
-export function validateProfileMetadata(profile: {
-  displayName: string | null;
-  avatarUrl: string | null;
-}): void {
-  validateOptionalText(
-    profile.displayName,
-    "Display name",
-    USER_CONTENT_LIMITS.displayName,
-  );
-  validateOptionalText(
-    profile.avatarUrl,
-    "Avatar URL",
-    USER_CONTENT_LIMITS.urlOrPath,
-  );
 }
 
 export function validateRequiredText(

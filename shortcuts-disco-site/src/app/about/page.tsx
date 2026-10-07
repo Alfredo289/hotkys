@@ -103,9 +103,9 @@ export default function About() {
             you can spend less time hunting through menus.
           </p>
           <p>
-            Find your app, choose your platform, and try something new. Sign in
-            to save your favorites and build a collection that fits the way you
-            work.
+            Find your app, choose your platform, and try something new. Favorite
+            the shortcuts you are learning to build a collection that fits the
+            way you work.
           </p>
           <p>
             Prefer to stay at your keyboard? The{" "}

@@ -1,13 +1,11 @@
 import React from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
-import { GoogleAnalytics } from "@next/third-parties/google";
 import { Metadata } from "next";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { ThemeProvider } from "@/components/theme-provider";
-import { AuthProvider } from "@/components/auth/auth-provider";
 
 /**
  * Font configuration for the application
@@ -56,20 +54,17 @@ const RootLayout = ({ children }: React.PropsWithChildren) => {
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AuthProvider>
-            <Header />
+          <Header />
 
-            <main
-              id="main-content"
-              className="flex-1 px-5 py-8 md:px-10 md:py-10"
-            >
-              {children}
-            </main>
+          <main
+            id="main-content"
+            className="flex-1 px-5 py-8 md:px-10 md:py-10"
+          >
+            {children}
+          </main>
 
-            <Footer />
-          </AuthProvider>
+          <Footer />
         </ThemeProvider>
-        <GoogleAnalytics gaId="G-RKBKYV49KC" />
       </body>
     </html>
   );

@@ -2,8 +2,6 @@ import { describe, expect, it } from "@jest/globals";
 import {
   USER_CONTENT_LIMITS,
   validateCustomAppMetadata,
-  validateFavoriteMetadata,
-  validateProfileMetadata,
 } from "./user-content";
 
 describe("user content validation", () => {
@@ -114,22 +112,5 @@ describe("user content validation", () => {
     "http://localhost:3000/app.png",
   ])("accepts safe image location %p", (icon) => {
     expect(() => validateCustomAppMetadata({ icon })).not.toThrow();
-  });
-
-  it("limits favorite identity fields", () => {
-    expect(() =>
-      validateFavoriteMetadata({
-        sectionTitle: "x".repeat(USER_CONTENT_LIMITS.sectionTitle + 1),
-      }),
-    ).toThrow("Section title must be 100 characters or fewer");
-  });
-
-  it("limits profile fields", () => {
-    expect(() =>
-      validateProfileMetadata({
-        displayName: "x".repeat(USER_CONTENT_LIMITS.displayName + 1),
-        avatarUrl: null,
-      }),
-    ).toThrow("Display name must be 100 characters or fewer");
   });
 });
