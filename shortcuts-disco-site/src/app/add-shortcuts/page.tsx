@@ -265,8 +265,25 @@ export default function AddShortcuts() {
           the character itself.
         </li>
         <li>
-          Layout-dependent symbols (^ ´ ` &lt; &gt; # ß ä ö ü § °) are valid.
-          They have no execution mapping, and the preview lists them.
+          Markdown escapes such as <Code>{"\\="}</Code> are removed. Keys can be
+          written as <Code>{"<kbd>"}</Code> tags or inline code.
+        </li>
+        <li>
+          The key itself can be <Code>+</Code> or <Code>-</Code> when that is
+          unambiguous: <Code>Cmd++</Code>, <Code>Cmd--</Code> and{" "}
+          <Code>⌘ +</Code> work, a trailing <Code>Cmd+</Code> does not. A{" "}
+          <Code>/</Code> right after a modifier is the <Code>/</Code> key (
+          <Code>⌘/</Code>), but <Code>Ctrl/Cmd</Code> is an error.
+        </li>
+        <li>
+          <Code>Alt</Code> is only accepted in Windows imports (in a macOS
+          import write <Code>Option</Code> or <Code>Control</Code>), and{" "}
+          <Code>Cmd</Code> is rejected in Windows imports.
+        </li>
+        <li>
+          Layout-dependent symbols (^ ´ ` &lt; &gt; # ß ä ö ü § °) are valid in
+          macOS imports. They have no execution mapping, and the preview lists
+          them.
         </li>
         <li>
           macOS keymaps allow <Code>ctrl</Code>, <Code>shift</Code>,{" "}
