@@ -323,15 +323,17 @@ export default function AddShortcuts() {
           <strong className="text-foreground">Errors</strong> abort the import
           with nothing written: ambiguous notation (<Code>Ctrl/Cmd</Code>,{" "}
           <Code>Mod</Code>, ambiguous <Code>+</Code>/<Code>-</Code>, a bare
-          modifier, <Code>Alt</Code> in a macOS import, click and drag words),
-          keys unsupported on the platform, length violations (titles, sections,
+          modifier, <Code>Alt</Code> in a macOS import, a <Code>/</Code>{" "}
+          alternative without modifiers after one with them like{" "}
+          <Code>Cmd+[ / ]</Code>, click and drag words), keys unsupported on the platform, length violations (titles, sections,
           comments, keys), unparseable rows, rows with neither shortcut nor
           comment, merge conflicts, and any failure when the whole catalog is
           validated with the new file in place.
         </li>
         <li>
           <strong className="text-foreground">Warnings</strong> allow the write:
-          the same key bound to different actions in one section.
+          the same key bound to different actions in one section, including actions
+          already in the target section of an existing app.
         </li>
         <li>
           <strong className="text-foreground">Notices</strong> are
@@ -373,13 +375,19 @@ export default function AddShortcuts() {
           New sections go at the end of the keymap.
         </li>
         <li>
-          An existing shortcut that would change or disappear is a conflict,
-          which aborts the import.
+          Merging is additive: existing shortcuts the table does not mention
+          are kept, so a partial table merges cleanly.
+        </li>
+        <li>
+          An imported row that would alter an existing shortcut (same section,
+          action and shortcut, different comment) is a conflict, which aborts
+          the import.
         </li>
       </List>
       <p>
-        <Code>--overwrite</Code> replaces the target keymap with the table. Use
-        it to rebuild an app&apos;s shortcuts on purpose.
+        <Code>--overwrite</Code> replaces the whole target keymap with the
+        table, dropping existing shortcuts the table does not list. Use it to
+        rebuild an app&apos;s shortcuts on purpose.
       </p>
       <p className="mt-4">
         After a write, the dev server (<Code>npm run dev</Code>) picks up the

@@ -1,14 +1,14 @@
 import { splitChord } from "@/lib/shortcut-core/parser";
-import { PLATFORM_MODIFIERS, PLATFORM_MODIFIER_ORDER } from "@/lib/shortcut-core/platforms";
+import { PLATFORM_MODIFIERS, PLATFORM_MODIFIER_ORDER, modifierRank } from "@/lib/shortcut-core/platforms";
 import { getWindowsKeyNames } from "@/lib/shortcut-core/windows-keys";
 import { isLayoutKey } from "@/lib/shortcut-core/keyboard-layouts";
 import { InputApp, InputKeymap, InputSection, InputShortcut } from "@/lib/model/input/input-models";
-import { modifierMapping, modifierTokensOrderMapping } from "@/lib/model/internal/modifiers";
+import { modifierMapping } from "@/lib/model/internal/modifiers";
 import { Platform } from "@/lib/model/internal/internal-models";
 import {
-    USER_CONTENT_LIMITS,
-    validateCustomAppMetadata,
-} from "@/lib/validation/user-content";
+    CATALOG_LIMITS,
+    validateAppMetadata,
+} from "@/lib/validation/catalog-content";
 
 const VALID_PLATFORMS: readonly Platform[] = ['windows', 'linux', 'macos'] as const;
 
@@ -36,7 +36,7 @@ export default class Validator {
         const appNames = new Set<string>();
         const slugs = new Set<string>();
         inputApps.forEach((app) => {
-            validateCustomAppMetadata(app);
+            validateAppMetadata(app);
             if (app.source) {
                 try {
                     new URL(app.source);
@@ -67,15 +67,15 @@ export default class Validator {
         if (keymaps.length === 0) {
             throw new ValidationError(`Application '${appName}' should contain at least one keymap`);
         }
-        if (keymaps.length > USER_CONTENT_LIMITS.customKeymaps) {
-            throw new ValidationError(`Application '${appName}' can contain at most ${USER_CONTENT_LIMITS.customKeymaps} keymaps`);
+        if (keymaps.length > CATALOG_LIMITS.keymaps) {
+            throw new ValidationError(`Application '${appName}' can contain at most ${CATALOG_LIMITS.keymaps} keymaps`);
         }
         keymaps.forEach((keymap) => {
             if (keymap.sections.length === 0) {
                 throw new ValidationError(`Keymap '${keymap.title}' should contain at least one section for application '${appName}'`);
             }
-            if (keymap.title.length > USER_CONTENT_LIMITS.keymapTitle) {
-                throw new ValidationError(`Keymap title must be ${USER_CONTENT_LIMITS.keymapTitle} characters or fewer`);
+            if (keymap.title.length > CATALOG_LIMITS.keymapTitle) {
+                throw new ValidationError(`Keymap title must be ${CATALOG_LIMITS.keymapTitle} characters or fewer`);
             }
             if (keymap.title.length === 0) {
                 throw new ValidationError(`Keymap title should not be empty for application '${appName}'`);
@@ -112,21 +112,21 @@ export default class Validator {
 
     private validateSections(sections: InputSection[], appName: string) {
         const sectionNames = new Set<string>();
-        if (sections.length > USER_CONTENT_LIMITS.customSections) {
-            throw new ValidationError(`A keymap can contain at most ${USER_CONTENT_LIMITS.customSections} sections for application '${appName}'`);
+        if (sections.length > CATALOG_LIMITS.sections) {
+            throw new ValidationError(`A keymap can contain at most ${CATALOG_LIMITS.sections} sections for application '${appName}'`);
         }
         sections.forEach((section) => {
             if (section.shortcuts.length === 0) {
                 throw new ValidationError(`Section '${section.title}' should contain at least one shortcut for application '${appName}'`);
             }
-            if (section.shortcuts.length > USER_CONTENT_LIMITS.customShortcuts) {
-                throw new ValidationError(`Section '${section.title}' can contain at most ${USER_CONTENT_LIMITS.customShortcuts} shortcuts for application '${appName}'`);
+            if (section.shortcuts.length > CATALOG_LIMITS.shortcuts) {
+                throw new ValidationError(`Section '${section.title}' can contain at most ${CATALOG_LIMITS.shortcuts} shortcuts for application '${appName}'`);
             }
             if (section.title.length === 0) {
                 throw new ValidationError(`Section title should not be empty for application '${appName}'`);
             }
-            if (section.title.length > USER_CONTENT_LIMITS.sectionTitle) {
-                throw new ValidationError(`Section title must be ${USER_CONTENT_LIMITS.sectionTitle} characters or fewer`);
+            if (section.title.length > CATALOG_LIMITS.sectionTitle) {
+                throw new ValidationError(`Section title must be ${CATALOG_LIMITS.sectionTitle} characters or fewer`);
             }
             if (sectionNames.has(section.title)) {
                 throw new ValidationError(`Duplicated section title '${section.title}' per keymap for application '${appName}'`);
@@ -149,8 +149,8 @@ export default class Validator {
         if (inputShortcut.comment && inputShortcut.comment.length > 50) {
             throw new ValidationError(`Comment longer than 50 symbols: '${inputShortcut.comment}'`);
         }
-        if (inputShortcut.key && inputShortcut.key.length > USER_CONTENT_LIMITS.shortcutKey) {
-            throw new ValidationError(`Shortcut key must be ${USER_CONTENT_LIMITS.shortcutKey} characters or fewer`);
+        if (inputShortcut.key && inputShortcut.key.length > CATALOG_LIMITS.shortcutKey) {
+            throw new ValidationError(`Shortcut key must be ${CATALOG_LIMITS.shortcutKey} characters or fewer`);
         }
         if (inputShortcut.key === undefined && inputShortcut.comment === undefined) {
             throw new ValidationError(`Shortcut '${inputShortcut.title}' should contains at least key or comment`); // todo: add test
@@ -194,8 +194,8 @@ export default class Validator {
 
     private validateOrderOfModifiers(totalNumberOfTokens: number, chordTokens: string[], fullShortcutKey: string, platform: Platform) {
         for (let i = 0; i < totalNumberOfTokens - 2; i++) {
-            const idx1 = modifierTokensOrderMapping.get(chordTokens[i]) ?? -1;
-            const idx2 = modifierTokensOrderMapping.get(chordTokens[i + 1]) ?? -1;
+            const idx1 = modifierRank(platform, chordTokens[i]);
+            const idx2 = modifierRank(platform, chordTokens[i + 1]);
             if (idx1 < 0 || idx2 < 0 || idx1 >= idx2) {
                 throw new ValidationError(
                     `Modifiers have incorrect order. Received: '${fullShortcutKey}'. Correct order: ${PLATFORM_MODIFIER_ORDER[platform].join(', ')}`,

@@ -3,6 +3,7 @@ import path from "node:path";
 import { validateCatalog } from "../load/catalog-validation";
 import { prettifyApp } from "../write/prettify";
 import type { InputApp } from "../model/input/input-models";
+import { errorMessage } from "./error-message";
 
 /** Serializes exactly like `npm run prettify`, so `format-data:check` passes on written files. */
 export function formatAppFile(app: InputApp): string {
@@ -13,10 +14,12 @@ export function formatAppFile(app: InputApp): string {
 /** Validates the whole catalog with the candidate in place. Returns an error message, or null when valid. */
 export function validateCandidate(root: string, app: InputApp): string | null {
   try {
-    validateCatalog(root, { [`${app.slug}.json`]: JSON.parse(formatAppFile(app)) });
+    validateCatalog(root, {
+      [`${app.slug}.json`]: JSON.parse(formatAppFile(app)),
+    });
     return null;
   } catch (error) {
-    return error instanceof Error ? error.message : String(error);
+    return errorMessage(error);
   }
 }
 

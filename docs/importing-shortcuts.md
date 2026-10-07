@@ -101,8 +101,8 @@ Exit codes: `0` success (possibly with warnings and notices), `1` errors (nothin
 
 Every diagnostic cites its line number in the Markdown file.
 
-- **Errors** abort the import with nothing written: ambiguous notation (`Ctrl/Cmd`, `Mod`, ambiguous `+`/`-`, a bare modifier, `Alt` in a macOS import, click and drag words), keys unsupported on the platform, length violations (titles, sections, comments, keys), unparseable rows, rows with neither shortcut nor comment, merge conflicts, and any failure when the whole catalog is validated with the new file in place.
-- **Warnings** allow the write: the same key bound to different actions in one section.
+- **Errors** abort the import with nothing written: ambiguous notation (`Ctrl/Cmd`, `Mod`, ambiguous `+`/`-`, a bare modifier, `Alt` in a macOS import, a `/` alternative without modifiers after one with them like `Cmd+[ / ]`, click and drag words), keys unsupported on the platform, length violations (titles, sections, comments, keys), unparseable rows, rows with neither shortcut nor comment, merge conflicts, and any failure when the whole catalog is validated with the new file in place.
+- **Warnings** allow the write: the same key bound to different actions in one section, including actions already in the target section of an existing app.
 - **Notices** are informational: collapsed duplicate rows, layout-dependent keys, non-table lines not imported.
 
 There is no partial write and no mode that skips bad rows.
@@ -117,9 +117,10 @@ Without `--overwrite`, an import into an existing app merges into the target key
 - An identical shortcut is unchanged, so re-running an import reports zero changes.
 - A new shortcut for an existing action is appended as an adjacent alternative.
 - A new action is appended to the end of its section, in source order. New sections go at the end of the keymap.
-- An existing shortcut that would change or disappear is a conflict, which aborts the import.
+- Merging is additive: existing shortcuts the table does not mention are kept, so a partial table merges cleanly.
+- An imported row that would alter an existing shortcut (same section, action and shortcut, different comment) is a conflict, which aborts the import.
 
-`--overwrite` replaces the target keymap with the table. Use it to rebuild an app's shortcuts on purpose.
+`--overwrite` replaces the whole target keymap with the table, dropping existing shortcuts the table does not list. Use it to rebuild an app's shortcuts on purpose.
 
 After a write, the dev server (`npm run dev`) picks up the change automatically.
 
