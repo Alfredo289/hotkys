@@ -3,7 +3,6 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, jest } from "@jest/globals";
 
 jest.mock("next/navigation", () => ({ usePathname: () => "/add-shortcuts" }));
-jest.mock("@/components/auth/user-menu", () => ({ UserMenu: () => null }));
 const { Header } = require("./header") as typeof import("./header");
 
 describe("Header", () => {
