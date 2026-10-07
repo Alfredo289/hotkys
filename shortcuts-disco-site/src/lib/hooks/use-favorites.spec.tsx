@@ -1,172 +1,149 @@
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { act, renderHook, waitFor } from "@testing-library/react";
-import type { Favorite } from "@/lib/model/user/user-models";
+import { beforeEach, describe, expect, it } from "@jest/globals";
+import { act, renderHook } from "@testing-library/react";
+import { useFavorites } from "./use-favorites";
 
-const user = { id: "user-1" };
-const getMock = jest.fn<(...args: unknown[]) => Promise<Favorite[]>>();
-const addMock = jest.fn<(...args: unknown[]) => Promise<Favorite>>();
-const removeMock = jest.fn<(...args: unknown[]) => Promise<void>>();
-jest.mock("@/components/auth/auth-provider", () => ({
-  useAuth: () => ({ user }),
-}));
-jest.mock("@/lib/services/favorites-service", () => ({
-  favoritesService: {
-    getFavorites: getMock,
-    addFavorite: addMock,
-    removeFavorite: removeMock,
-  },
-}));
-jest.mock("@/lib/services/user-service", () => ({
-  userService: {
-    getPreferences: async () => null,
-    getProfile: async () => null,
-  },
-}));
-const { AccountDataProvider } =
-  require("@/components/auth/account-data-provider") as typeof import("@/components/auth/account-data-provider");
-const { useFavorites } =
-  require("./use-favorites") as typeof import("./use-favorites");
+const STORAGE_KEY = "hotkys:favorites:v1";
 
-function setup() {
-  return renderHook(() => useFavorites(), { wrapper: AccountDataProvider });
+const shortcut = {
+  itemType: "shortcut" as const,
+  appSlug: "finder",
+  keymapTitle: "macOS",
+  sectionTitle: "General",
+  shortcutTitle: "Search",
+  baseShortcutId: '[[["f",["command down"]]],"Search","",0]',
+};
+
+function stored() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
 }
 
-describe("private favorites", () => {
+describe("local favorites", () => {
   beforeEach(() => {
-    getMock.mockReset().mockResolvedValue([]);
-    addMock.mockReset();
-    removeMock.mockReset().mockResolvedValue(undefined);
+    localStorage.clear();
+  });
+
+  it("works signed out, without any provider or auth context", () => {
+    const { result } = renderHook(() => useFavorites());
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.favorites).toEqual([]);
+    expect(result.current.isFavorite(shortcut)).toBe(false);
+  });
+
+  it("adds and removes a favorite by toggling", async () => {
+    const { result } = renderHook(() => useFavorites());
+    await act(() => result.current.toggleFavorite(shortcut));
+    expect(result.current.isFavorite(shortcut)).toBe(true);
+    expect(result.current.favorites).toHaveLength(1);
+
+    await act(() => result.current.toggleFavorite(shortcut));
+    expect(result.current.isFavorite(shortcut)).toBe(false);
+    expect(result.current.favorites).toEqual([]);
+  });
+
+  it("stores favorites under the versioned key by their frozen identity", async () => {
+    const { result } = renderHook(() => useFavorites());
+    await act(() =>
+      result.current.toggleFavorite({
+        ...shortcut,
+        baseShortcutAliases: ["v2:alias"],
+      }),
+    );
+    const payload = stored();
+    expect(payload.version).toBe(1);
+    expect(payload.favorites).toHaveLength(1);
+    expect(payload.favorites[0]).toMatchObject({
+      itemType: "shortcut",
+      appSlug: "finder",
+      keymapTitle: "macOS",
+      sectionTitle: "General",
+      shortcutTitle: "Search",
+      baseShortcutId: shortcut.baseShortcutId,
+    });
+    expect(typeof payload.favorites[0].id).toBe("string");
+    expect(payload.favorites[0].userId).toBeUndefined();
+    expect(payload.favorites[0].baseShortcutAliases).toBeUndefined();
+  });
+
+  it("persists across remounts", async () => {
+    const first = renderHook(() => useFavorites());
+    await act(() => first.result.current.toggleFavorite(shortcut));
+    await act(() =>
+      first.result.current.toggleFavorite({
+        itemType: "app",
+        appSlug: "finder",
+      }),
+    );
+    first.unmount();
+
+    const second = renderHook(() => useFavorites());
+    expect(second.result.current.favorites).toHaveLength(2);
+    expect(second.result.current.isFavorite(shortcut)).toBe(true);
+    expect(
+      second.result.current.isFavorite({ itemType: "app", appSlug: "finder" }),
+    ).toBe(true);
+  });
+
+  it("recognizes a favorite after a catalog change that keeps the shortcut", async () => {
+    const { result } = renderHook(() => useFavorites());
+    await act(() => result.current.toggleFavorite(shortcut));
+    // The catalog grew elsewhere: same identity, extra aliases, other rows.
+    expect(
+      result.current.isFavorite({
+        ...shortcut,
+        baseShortcutAliases: ["something-else"],
+      }),
+    ).toBe(true);
+    // A different row in the same section is not a match.
+    expect(
+      result.current.isFavorite({
+        ...shortcut,
+        shortcutTitle: "Search again",
+        baseShortcutId: '[[["g",["command down"]]],"Search again","",0]',
+      }),
+    ).toBe(false);
+  });
+
+  it("keeps instances in sync so a star updates every list", async () => {
+    const button = renderHook(() => useFavorites());
+    const list = renderHook(() => useFavorites());
+    await act(() => button.result.current.toggleFavorite(shortcut));
+    expect(list.result.current.favorites).toHaveLength(1);
+  });
+
+  it("removes a favorite by its id", async () => {
+    const { result } = renderHook(() => useFavorites());
+    await act(() => result.current.toggleFavorite(shortcut));
+    const [{ id }] = result.current.favorites;
+    await act(() => result.current.removeFavorite(id));
+    expect(result.current.favorites).toEqual([]);
+    expect(stored().favorites).toEqual([]);
   });
 
   it.each([
-    ["app", "customAppId"],
-    ["keymap", "customKeymapId"],
-    ["shortcut", "customShortcutId"],
-  ] as const)(
-    "stores a private %s by its own ID and preserves it through renames",
-    async (itemType, field) => {
-      const created = {
-        id: "favorite-1",
-        userId: user.id,
-        itemType,
-        [field]: "target-1",
-      } as Favorite;
-      addMock.mockImplementation(async () => {
-        getMock.mockResolvedValue([created]);
-        return created;
-      });
-      removeMock.mockImplementation(async () => {
-        getMock.mockResolvedValue([]);
-      });
-      const { result } = setup();
-      await waitFor(() => expect(result.current.isLoading).toBe(false));
-      const target = {
-        itemType,
-        appSlug: "custom-old",
-        keymapTitle: "Old map",
-        shortcutTitle: "Old action",
-        [field]: "target-1",
-      };
-      await act(() => result.current.toggleFavorite(target));
-      expect(addMock).toHaveBeenCalledWith(
-        { itemType, [field]: "target-1" },
-        user,
-      );
-      expect(
-        result.current.isFavorite({
-          ...target,
-          appSlug: "custom-renamed",
-          keymapTitle: "New map",
-          shortcutTitle: "New action",
-        }),
-      ).toBe(true);
-      expect(
-        result.current.isFavorite({ ...target, [field]: "different-id" }),
-      ).toBe(false);
-      // The shared account provider reconciles successful writes once.
-      expect(getMock).toHaveBeenCalledTimes(2);
-      await act(() =>
-        result.current.toggleFavorite({ ...target, appSlug: "custom-renamed" }),
-      );
-      expect(removeMock).toHaveBeenCalledWith("favorite-1", user);
-      expect(result.current.favorites).toEqual([]);
-    },
-  );
+    ["unparseable JSON", "{nope"],
+    ["an unknown version", JSON.stringify({ version: 2, favorites: [{}] })],
+    ["a non-list payload", JSON.stringify({ version: 1, favorites: "x" })],
+  ])("starts empty instead of failing on %s", async (_label, raw) => {
+    localStorage.setItem(STORAGE_KEY, raw);
+    const { result } = renderHook(() => useFavorites());
+    expect(result.current.favorites).toEqual([]);
+    await act(() => result.current.toggleFavorite(shortcut));
+    expect(result.current.favorites).toHaveLength(1);
+  });
 
-  it("removes a legacy public favorite by persisted ID when its saved shortcut identity is missing", async () => {
-    getMock.mockResolvedValue([
-      {
-        id: "legacy",
-        customKeymapId: "legacy-ancestor",
-        userId: user.id,
-        itemType: "shortcut",
-        appSlug: "finder",
-        keymapTitle: "Default",
-        sectionTitle: "General",
-        shortcutTitle: "Search",
-      },
-    ]);
-    const { result } = setup();
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-    await act(() =>
-      result.current.toggleFavorite({
-        itemType: "shortcut",
-        appSlug: "finder",
-        keymapTitle: "Default",
-        sectionTitle: "General",
-        shortcutTitle: "Search",
-        baseShortcutId: "current-id",
+  it("drops malformed entries but keeps valid ones", () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        favorites: [
+          { id: "ok", itemType: "app", appSlug: "finder" },
+          { id: "bad", itemType: "other" },
+          null,
+        ],
       }),
     );
-    expect(removeMock).toHaveBeenCalledWith("legacy", user);
-    expect(addMock).not.toHaveBeenCalled();
+    const { result } = renderHook(() => useFavorites());
+    expect(result.current.favorites.map((f) => f.id)).toEqual(["ok"]);
   });
-
-  it("keeps the star state unchanged after a failed save or removal", async () => {
-    const favorite: Favorite = {
-      id: "saved",
-      userId: user.id,
-      itemType: "app",
-      customAppId: "app-1",
-    };
-    getMock.mockResolvedValue([favorite]);
-    removeMock.mockRejectedValueOnce(new Error("Offline"));
-    addMock.mockRejectedValueOnce(new Error("Offline"));
-    const { result } = setup();
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-    const existing = {
-      itemType: "app" as const,
-      customAppId: "app-1",
-      appSlug: "custom-tool",
-    };
-    await act(async () => {
-      await expect(result.current.toggleFavorite(existing)).rejects.toThrow(
-        "Offline",
-      );
-    });
-    expect(result.current.isFavorite(existing)).toBe(true);
-    await act(() => result.current.refetch());
-    const next = { ...existing, customAppId: "app-2" };
-    await act(async () => {
-      await expect(result.current.toggleFavorite(next)).rejects.toThrow(
-        "Offline",
-      );
-    });
-    expect(result.current.isFavorite(next)).toBe(false);
-  });
-});
-
-it("exposes read failures without allowing a write against an unloaded favorites list", async () => {
-  getMock.mockRejectedValue(new Error("Offline read"));
-  const { result } = setup();
-  await waitFor(() => expect(result.current.isLoading).toBe(false));
-  await act(async () => {
-    await expect(result.current.refetch()).rejects.toThrow("Offline read");
-  });
-  await act(async () => {
-    await expect(
-      result.current.toggleFavorite({ itemType: "app", appSlug: "safari" }),
-    ).rejects.toThrow("Load your saved favorites");
-  });
-  expect(addMock).not.toHaveBeenCalled();
 });

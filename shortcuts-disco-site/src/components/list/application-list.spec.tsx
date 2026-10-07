@@ -4,13 +4,8 @@ import type { AppShortcuts } from "@/lib/model/internal/internal-models";
 import { appDescriptions } from "@/lib/app-descriptions";
 import fs from "node:fs";
 import path from "node:path";
+import { FAVORITES_STORAGE_KEY } from "@/lib/storage/favorites-store";
 
-const mockUseAuth = jest.fn();
-const mockUseFavorites = jest.fn();
-jest.mock("@/components/auth/auth-provider", () => ({ useAuth: mockUseAuth }));
-jest.mock("@/lib/hooks/use-favorites", () => ({
-  useFavorites: mockUseFavorites,
-}));
 jest.mock("next/navigation", () => ({ usePathname: () => "/" }));
 
 jest.mock("@/lib/hooks/use-platform", () => ({
@@ -51,15 +46,16 @@ const baseApps: AppShortcuts[] = [
   },
 ];
 
+function saveFavorites(...favorites: Record<string, unknown>[]) {
+  localStorage.setItem(
+    FAVORITES_STORAGE_KEY,
+    JSON.stringify({ version: 1, favorites }),
+  );
+}
+
 describe("ApplicationList", () => {
   beforeEach(() => {
-    mockUseAuth.mockReturnValue({ user: null, isLoading: false });
-    mockUseFavorites.mockReturnValue({
-      favorites: [],
-      isLoading: false,
-      isFavorite: () => false,
-      toggleFavorite: jest.fn(),
-    });
+    localStorage.clear();
   });
 
   it("lists catalog apps and links them to their keymap pages", () => {
@@ -109,16 +105,11 @@ describe("ApplicationList", () => {
   });
 
   it("uses saved app favorites and links to the full collection", () => {
-    mockUseAuth.mockReturnValue({ user: { id: "user-1" }, isLoading: false });
-    mockUseFavorites.mockReturnValue({
-      favorites: [
-        { itemType: "app", appSlug: "sample" },
-        { itemType: "shortcut", appSlug: "other" },
-        { itemType: "app", appSlug: "missing" },
-      ],
-      isLoading: false,
-      isFavorite: () => false,
-    });
+    saveFavorites(
+      { id: "1", itemType: "app", appSlug: "sample" },
+      { id: "2", itemType: "shortcut", appSlug: "other" },
+      { id: "3", itemType: "app", appSlug: "missing" },
+    );
     render(<ApplicationList applications={baseApps} />);
     const panel = within(
       screen.getByRole("region", { name: "Your favorites, within reach." }),
@@ -131,45 +122,24 @@ describe("ApplicationList", () => {
     ).toBe("/favorites");
   });
 
-  it("shows a signed-out invitation and an authenticated empty state", () => {
-    const { rerender } = render(<ApplicationList applications={baseApps} />);
-    expect(
-      screen
-        .getByRole("link", { name: /sign in to save favorites/i })
-        .getAttribute("href"),
-    ).toBe("/auth/login");
-    mockUseAuth.mockReturnValue({ user: { id: "user-1" }, isLoading: false });
-    rerender(<ApplicationList applications={baseApps} />);
+  it("works signed out: no sign-in prompt, an empty state until a star is tapped", () => {
+    render(<ApplicationList applications={baseApps} />);
+    expect(screen.queryByText(/sign in/i)).toBeNull();
     expect(
       screen.getByText("Tap a star below to save your first app."),
     ).toBeTruthy();
-    mockUseFavorites.mockReturnValue({
-      favorites: [],
-      isLoading: true,
-      isFavorite: () => false,
-    });
-    rerender(<ApplicationList applications={baseApps} />);
-    expect(screen.getByText("Loading your favorites…")).toBeTruthy();
-  });
-
-  it("announces a failed favorite mutation without navigating away", async () => {
-    const toggleFavorite = jest
-      .fn<(identifier: unknown) => Promise<void>>()
-      .mockRejectedValue(new Error("Offline"));
-    mockUseAuth.mockReturnValue({ user: { id: "user-1" }, isLoading: false });
-    mockUseFavorites.mockReturnValue({
-      favorites: [],
-      isLoading: false,
-      isFavorite: () => false,
-      toggleFavorite,
-    });
-    render(<ApplicationList applications={baseApps} />);
     fireEvent.click(screen.getByRole("button", { name: "Add to favorites" }));
-    expect((await screen.findByRole("alert")).textContent).toBe(
-      "Could not update favorites. Please try again.",
+    const panel = within(
+      screen.getByRole("region", { name: "Your favorites, within reach." }),
     );
-    expect(toggleFavorite).toHaveBeenCalledWith(
-      expect.objectContaining({ itemType: "app", appSlug: "sample" }),
-    );
+    expect(
+      panel.getByRole("link", { name: /sample/i }).getAttribute("href"),
+    ).toBe("/apps/sample/default");
+    expect(
+      screen.getByRole("button", { name: "Remove from favorites" }),
+    ).toBeTruthy();
+    expect(
+      JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY)!).favorites,
+    ).toMatchObject([{ itemType: "app", appSlug: "sample" }]);
   });
 });

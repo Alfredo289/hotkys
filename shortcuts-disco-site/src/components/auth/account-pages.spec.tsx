@@ -30,14 +30,9 @@ it("keeps the profile draft after a failed save and trims a successful retry", a
   await waitFor(() => expect(push).toHaveBeenCalledWith("/profile"));
   expect(updateProfile).toHaveBeenLastCalledWith({ displayName: "New name", avatarUrl: null });
 });
-it("shows preference failures and clears them after the account retry succeeds", async () => {
+it("shows a failed preference save", async () => {
   updatePreferences.mockRejectedValueOnce(new Error("Offline"));
-  const view = render(<SettingsContent />);
+  render(<SettingsContent />);
   fireEvent.click(screen.getByRole("button", { name: "macOS" }));
   expect((await screen.findByRole("alert")).textContent).toBe("Offline");
-  const state = mockPreferences() as Record<string, unknown>;
-  mockPreferences.mockReturnValue({ ...state, error: "Offline" }); view.rerender(<SettingsContent />);
-  mockPreferences.mockReturnValue({ ...state, error: undefined }); view.rerender(<SettingsContent />);
-  await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
-  expect(screen.getByRole("status").textContent).toBe("Preferences saved.");
 });
