@@ -10,13 +10,15 @@ export function createSchemaValidator(schema: object) {
   ajv.addFormat("uri", { type: "string", validate: (value: string) => { try { new URL(value); return true; } catch { return false; } } });
   return ajv.compile<InputApp>(schema);
 }
-export function validateCatalog(root: string): { apps: InputApp[]; schema: object } {
+/** `overrides` maps `<slug>.json` to an in-memory app that replaces (or adds to) the files on disk, to validate a candidate before it is written. */
+export function validateCatalog(root: string, overrides: Record<string, unknown> = {}): { apps: InputApp[]; schema: object } {
   const source = path.join(root, "shortcuts-data");
   const schema: object = JSON.parse(fs.readFileSync(path.join(source, "schema/shortcut.schema.json"), "utf8"));
   const check = createSchemaValidator(schema);
-  const apps = fs.readdirSync(source).filter(name => name.endsWith(".json")).sort().map(name => {
+  const names = [...new Set([...fs.readdirSync(source).filter(name => name.endsWith(".json")), ...Object.keys(overrides)])].sort();
+  const apps = names.map(name => {
     let input: unknown;
-    try { input = JSON.parse(fs.readFileSync(path.join(source, name), "utf8")); } catch (error) { throw new Error(`${name}: ${error instanceof Error ? error.message : "invalid JSON"}`); }
+    try { input = name in overrides ? overrides[name] : JSON.parse(fs.readFileSync(path.join(source, name), "utf8")); } catch (error) { throw new Error(`${name}: ${error instanceof Error ? error.message : "invalid JSON"}`); }
     if (!check(input)) throw new Error(`${name}: ${check.errors?.map(error => `${error.instancePath || "/"} ${error.message}`).join("; ")}`);
     if (input.slug !== name.slice(0, -5)) throw new Error(`${name}: filename must match slug ${input.slug}`);
     validatePublicRoutes(input);

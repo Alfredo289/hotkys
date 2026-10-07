@@ -16,6 +16,7 @@
     "export-data:watch": "node --import tsx ./src/lib/write/watcher.ts",
     "prettify": "node --import tsx ./src/lib/write/prettify.ts",
     "test:types": "tsc --noEmit",
+    "import": "node --import tsx ./src/lib/import/cli.ts",
     "validate-data": "node --import tsx ./src/lib/write/validate-data.ts",
     "format-data:check": "node --import tsx ./src/lib/write/prettify.ts --check",
     "test:db:concurrency": "node --test supabase/tests/concurrency.test.mjs",
