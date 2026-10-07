@@ -1,6 +1,7 @@
 import { splitChord } from "@/lib/shortcut-core/parser";
 import { PLATFORM_MODIFIERS, PLATFORM_MODIFIER_ORDER } from "@/lib/shortcut-core/platforms";
 import { getWindowsKeyNames } from "@/lib/shortcut-core/windows-keys";
+import { isLayoutKey } from "@/lib/shortcut-core/keyboard-layouts";
 import { InputApp, InputKeymap, InputSection, InputShortcut } from "@/lib/model/input/input-models";
 import { modifierMapping, modifierTokensOrderMapping } from "@/lib/model/internal/modifiers";
 import { Platform } from "@/lib/model/internal/internal-models";
@@ -215,7 +216,9 @@ export default class Validator {
 
     private isBaseKey(baseToken: string, platform: Platform): boolean {
         if (platform === "windows") return Object.prototype.hasOwnProperty.call(this.windowsKeys, baseToken);
-        return this.keyCodes.has(baseToken);
+        // macOS (and unplatformed) keys: named keys and US characters from the key-code table, plus any character
+        // a keyboard layout table knows, including the layout-dependent symbols.
+        return this.keyCodes.has(baseToken) || isLayoutKey(baseToken);
     }
 }
 

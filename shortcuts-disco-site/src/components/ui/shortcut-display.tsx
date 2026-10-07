@@ -7,6 +7,7 @@ import {
 } from "@/lib/model/internal/internal-models";
 import { Modifiers, modifierSymbols } from "@/lib/model/internal/modifiers";
 import { cn } from "@/lib/utils";
+import { isLayoutDependentKey } from "@/lib/shortcut-core/keyboard-layouts";
 
 const baseKeySymbolOverride: Record<string, string> = {
   left: "←",
@@ -26,6 +27,7 @@ const baseKeySymbolOverride: Record<string, string> = {
 };
 
 function formatBaseKey(base: string): string {
+  if (isLayoutDependentKey(base)) return base;
   return baseKeySymbolOverride[base] ?? base.toUpperCase();
 }
 
