@@ -4,8 +4,7 @@ import type { Platform } from "../model/internal/internal-models";
 export type ImportPlatform = Extract<Platform, "macos" | "windows">;
 
 /**
- * Everything the import operation needs. Tickets 06 (Markdown extraction), 07 (merge / overwrite)
- * and 10 (normalization) extend this shape; add new optional fields rather than changing existing ones.
+ * Everything the import operation needs.
  */
 export interface ImportRequest {
   /** Markdown source text. */
@@ -65,7 +64,7 @@ export interface ImportPreview {
 
 export interface ChangeSummary {
   added: number;
-  /** New shortcuts appended as adjacent alternatives of an existing action (ticket 07). */
+  /** New shortcuts appended as adjacent alternatives of an existing action. */
   alternatives: number;
   unchanged: number;
   conflicts: number;
@@ -86,12 +85,16 @@ export interface ImportReport {
   ok: boolean;
   /** True only if the catalog file was actually written. */
   wrote: boolean;
-  app: { name: string; slug: string; /** False when the slug already exists in the catalog. */ created: boolean };
+  app: {
+    name: string;
+    slug: string;
+    /** False when the slug already exists in the catalog. */ created: boolean;
+  };
   /** Null when no preview could be built (e.g. the Markdown had no importable table). */
   preview: ImportPreview | null;
   diagnostics: Diagnostic[];
   changes: ChangeSummary;
-  /** Keys with no execution mapping (ticket 05 / 10). */
+  /** Keys with no execution mapping (macOS layout-dependent symbols). */
   layoutDependentKeys: LayoutDependentKey[];
   nonTableLines: NonTableLine[];
 }

@@ -2,26 +2,53 @@
 import { it, expect, beforeEach, afterEach, describe } from "@jest/globals";
 import fs from "node:fs";
 import path from "node:path";
-import { importShortcuts, type ImportReport, type ImportRequest } from "./import-shortcuts";
+import {
+  importShortcuts,
+  type ImportReport,
+  type ImportRequest,
+} from "./import-shortcuts";
 import type { InputApp } from "../model/input/input-models";
 import { createTempCatalog } from "./test-catalog";
 
 let catalog: ReturnType<typeof createTempCatalog>;
-beforeEach(() => { catalog = createTempCatalog(); });
+beforeEach(() => {
+  catalog = createTempCatalog();
+});
 afterEach(() => catalog.cleanup());
 
-const table = (rows: string[][], header = "| Action | Shortcut | Comment |\n| --- | --- | --- |") =>
-  [header, ...rows.map(row => `| ${row.join(" | ")} |`)].join("\n");
+const table = (
+  rows: string[][],
+  header = "| Action | Shortcut | Comment |\n| --- | --- | --- |",
+) => [header, ...rows.map((row) => `| ${row.join(" | ")} |`)].join("\n");
 
-const run = (markdown: string, overrides: Partial<ImportRequest> = {}): ImportReport =>
-  importShortcuts(catalog.root, { markdown, fileName: "notation.md", app: "Notation", slug: "notation", platform: "macos", ...overrides });
+const run = (
+  markdown: string,
+  overrides: Partial<ImportRequest> = {},
+): ImportReport =>
+  importShortcuts(catalog.root, {
+    markdown,
+    fileName: "notation.md",
+    app: "Notation",
+    slug: "notation",
+    platform: "macos",
+    ...overrides,
+  });
 
 /** Imports one cell as the only row (line 3) and returns the report. */
-const cell = (shortcut: string, platform: "macos" | "windows" = "macos") => run(table([["Do it", shortcut, ""]]), { platform });
-const entries = (report: ImportReport) => report.preview?.sections.flatMap(section => section.entries) ?? [];
-const keys = (report: ImportReport) => entries(report).map(entry => entry.key);
-const diagnostics = (report: ImportReport, severity: "error" | "warning" | "notice") => report.diagnostics.filter(d => d.severity === severity);
-const readApp = (slug = "notation") => JSON.parse(fs.readFileSync(path.join(catalog.dataDir, `${slug}.json`), "utf8")) as InputApp;
+const cell = (shortcut: string, platform: "macos" | "windows" = "macos") =>
+  run(table([["Do it", shortcut, ""]]), { platform });
+const entries = (report: ImportReport) =>
+  report.preview?.sections.flatMap((section) => section.entries) ?? [];
+const keys = (report: ImportReport) =>
+  entries(report).map((entry) => entry.key);
+const diagnostics = (
+  report: ImportReport,
+  severity: "error" | "warning" | "notice",
+) => report.diagnostics.filter((d) => d.severity === severity);
+const readApp = (slug = "notation") =>
+  JSON.parse(
+    fs.readFileSync(path.join(catalog.dataDir, `${slug}.json`), "utf8"),
+  ) as InputApp;
 
 describe("modifiers", () => {
   it.each([
@@ -59,14 +86,37 @@ describe("modifiers", () => {
 
 describe("key names", () => {
   it.each([
-    ["Esc", "esc"], ["Escape", "esc"], ["⎋", "esc"],
-    ["Return", "enter"], ["Enter", "enter"], ["↵", "enter"], ["⏎", "enter"],
-    ["Del", "delete"], ["Delete", "delete"], ["⌦", "delete"],
-    ["Backspace", "backspace"], ["⌫", "backspace"],
-    ["PgUp", "pageup"], ["PgDn", "pagedown"], ["Page Up", "pageup"], ["Page Down", "pagedown"],
-    ["Up", "up"], ["Down Arrow", "down"], ["Arrow Left", "left"], ["Right Arrow", "right"],
-    ["←", "left"], ["↑", "up"], ["→", "right"], ["↓", "down"],
-    ["Space", "space"], ["Tab", "tab"], ["⇥", "tab"], ["F5", "f5"], ["f12", "f12"], ["Home", "home"], ["End", "end"],
+    ["Esc", "esc"],
+    ["Escape", "esc"],
+    ["⎋", "esc"],
+    ["Return", "enter"],
+    ["Enter", "enter"],
+    ["↵", "enter"],
+    ["⏎", "enter"],
+    ["Del", "delete"],
+    ["Delete", "delete"],
+    ["⌦", "delete"],
+    ["Backspace", "backspace"],
+    ["⌫", "backspace"],
+    ["PgUp", "pageup"],
+    ["PgDn", "pagedown"],
+    ["Page Up", "pageup"],
+    ["Page Down", "pagedown"],
+    ["Up", "up"],
+    ["Down Arrow", "down"],
+    ["Arrow Left", "left"],
+    ["Right Arrow", "right"],
+    ["←", "left"],
+    ["↑", "up"],
+    ["→", "right"],
+    ["↓", "down"],
+    ["Space", "space"],
+    ["Tab", "tab"],
+    ["⇥", "tab"],
+    ["F5", "f5"],
+    ["f12", "f12"],
+    ["Home", "home"],
+    ["End", "end"],
   ])("%s -> %s", (input, expected) => {
     const report = cell(`Cmd+${input}`);
     expect(report.ok).toBe(true);
@@ -160,7 +210,12 @@ describe("sequences", () => {
 
 describe("alternatives", () => {
   it("splits Cmd+Shift+Z or Cmd+Y into adjacent entries with the same title and line", () => {
-    const report = run(table([["Redo", "Cmd+Shift+Z or Cmd+Y", "after undo"], ["Copy", "Cmd+C", ""]]));
+    const report = run(
+      table([
+        ["Redo", "Cmd+Shift+Z or Cmd+Y", "after undo"],
+        ["Copy", "Cmd+C", ""],
+      ]),
+    );
     expect(report.ok).toBe(true);
     expect(entries(report)).toEqual([
       { title: "Redo", key: "shift+cmd+z", comment: "after undo", line: 3 },
@@ -185,13 +240,23 @@ describe("alternatives", () => {
     const report = cell(input);
     expect(diagnostics(report, "error")).toEqual([]);
     expect(keys(report)).toEqual(expected);
-    expect(new Set(entries(report).map(entry => entry.title))).toEqual(new Set(["Do it"]));
+    expect(new Set(entries(report).map((entry) => entry.title))).toEqual(
+      new Set(["Do it"]),
+    );
   });
 
   it("writes alternatives as adjacent shortcuts in source order", () => {
-    run(table([["Redo", "Cmd+Shift+Z or Cmd+Y", ""], ["Copy", "Cmd+C", ""]]), { write: true });
+    run(
+      table([
+        ["Redo", "Cmd+Shift+Z or Cmd+Y", ""],
+        ["Copy", "Cmd+C", ""],
+      ]),
+      { write: true },
+    );
     expect(readApp().keymaps[0].sections[0].shortcuts).toEqual([
-      { title: "Redo", key: "shift+cmd+z" }, { title: "Redo", key: "cmd+y" }, { title: "Copy", key: "cmd+c" },
+      { title: "Redo", key: "shift+cmd+z" },
+      { title: "Redo", key: "cmd+y" },
+      { title: "Copy", key: "cmd+c" },
     ]);
   });
 
@@ -199,19 +264,33 @@ describe("alternatives", () => {
     const markdown = table([["Redo", "Cmd+Shift+Z or Cmd+Y", ""]]);
     run(markdown, { write: true });
     const again = run(markdown, { write: true });
-    expect(again.changes).toEqual({ added: 0, alternatives: 0, unchanged: 2, conflicts: 0 });
+    expect(again.changes).toEqual({
+      added: 0,
+      alternatives: 0,
+      unchanged: 2,
+      conflicts: 0,
+    });
     expect(again.wrote).toBe(false);
   });
 
-  it("warns when a slash alternative has no modifiers while the first has", () => {
+  it("rejects a slash alternative without modifiers instead of inferring a shared prefix", () => {
     const report = cell("Cmd+[ / ]");
-    expect(keys(report)).toEqual(["cmd+[", "]"]);
-    expect(diagnostics(report, "warning")).toMatchObject([{ code: "alternative-without-modifiers", line: 3 }]);
+    expect(report.ok).toBe(false);
+    expect(keys(report)).toEqual([]);
+    expect(diagnostics(report, "error")).toMatchObject([
+      { code: "alternative-without-modifiers", line: 3 },
+    ]);
+    expect(diagnostics(report, "warning")).toEqual([]);
   });
 });
 
 describe("errors abort with nothing written and cite the source line", () => {
-  const rows = (shortcut: string) => table([["Fine", "Cmd+C", ""], ["Bad", shortcut, ""], ["Also fine", "Cmd+V", ""]]);
+  const rows = (shortcut: string) =>
+    table([
+      ["Fine", "Cmd+C", ""],
+      ["Bad", shortcut, ""],
+      ["Also fine", "Cmd+V", ""],
+    ]);
 
   it.each([
     ["Ctrl/Cmd+S", "ambiguous-notation"],
@@ -251,51 +330,81 @@ describe("errors abort with nothing written and cite the source line", () => {
     const report = run(rows(input), { write: true });
     expect(report.ok).toBe(false);
     expect(report.wrote).toBe(false);
-    expect(diagnostics(report, "error")).toEqual([expect.objectContaining({ code, line: 4 })]);
+    expect(diagnostics(report, "error")).toEqual([
+      expect.objectContaining({ code, line: 4 }),
+    ]);
     expect(catalog.snapshot()).toEqual(before);
   });
 
   it("rejects Windows-only and macOS-only modifiers on the wrong platform", () => {
     for (const input of ["Cmd+K", "Command+K", "⌘K"]) {
       const report = cell(input, "windows");
-      expect(diagnostics(report, "error")).toEqual([expect.objectContaining({ code: "unsupported-key", line: 3 })]);
+      expect(diagnostics(report, "error")).toEqual([
+        expect.objectContaining({ code: "unsupported-key", line: 3 }),
+      ]);
     }
   });
 
   it("reports an error for every bad row, each with its own line", () => {
-    const report = run(table([["A", "Mod+K", ""], ["B", "Cmd+C", ""], ["C", "Click", ""], ["D", "Cmd+Foo", ""]]));
-    expect(diagnostics(report, "error").map(d => [d.code, d.line])).toEqual([["ambiguous-notation", 3], ["pointer-gesture", 5], ["unsupported-key", 6]]);
+    const report = run(
+      table([
+        ["A", "Mod+K", ""],
+        ["B", "Cmd+C", ""],
+        ["C", "Click", ""],
+        ["D", "Cmd+Foo", ""],
+      ]),
+    );
+    expect(diagnostics(report, "error").map((d) => [d.code, d.line])).toEqual([
+      ["ambiguous-notation", 3],
+      ["pointer-gesture", 5],
+      ["unsupported-key", 6],
+    ]);
   });
 
   it("does not use a bad cell's comment as a fallback entry", () => {
-    const report = run(table([["Bad", "Mod+K", "keeps comment"]]), { write: true });
+    const report = run(table([["Bad", "Mod+K", "keeps comment"]]), {
+      write: true,
+    });
     expect(report.ok).toBe(false);
     expect(entries(report)).toEqual([]);
-    expect(fs.existsSync(path.join(catalog.dataDir, "notation.json"))).toBe(false);
+    expect(fs.existsSync(path.join(catalog.dataDir, "notation.json"))).toBe(
+      false,
+    );
   });
 
   it("reports over-long titles, comments, sections and keys without truncating", () => {
     const before = catalog.snapshot();
     const long = (length: number) => "x".repeat(length);
     const markdown = [
-      `## ${long(101)}`, "", "| Action | Shortcut | Comment |", "| --- | --- | --- |",
+      `## ${long(101)}`,
+      "",
+      "| Action | Shortcut | Comment |",
+      "| --- | --- | --- |",
       `| ${long(51)} | Cmd+A | |`,
       `| Fine | Cmd+B | ${long(51)} |`,
       `| Boundary ${long(41)} | Cmd+C | ${long(50)} |`,
     ].join("\n");
     const report = run(markdown, { write: true });
     expect(report.wrote).toBe(false);
-    expect(diagnostics(report, "error").map(d => [d.code, d.line])).toEqual([
-      ["too-long", 5], ["too-long", 5], ["too-long", 6],
+    expect(diagnostics(report, "error").map((d) => [d.code, d.line])).toEqual([
+      ["too-long", 5],
+      ["too-long", 5],
+      ["too-long", 6],
     ]);
-    expect(diagnostics(report, "error").map(d => d.message).join("\n")).toMatch(/title.*50/i);
+    expect(
+      diagnostics(report, "error")
+        .map((d) => d.message)
+        .join("\n"),
+    ).toMatch(/title.*50/i);
     expect(catalog.snapshot()).toEqual(before);
   });
 
   it("reports an over-long key", () => {
     const key = Array.from({ length: 70 }, () => "Cmd+K").join(" ");
     const report = cell(key);
-    expect(diagnostics(report, "error")).toEqual([expect.objectContaining({ code: "too-long", line: 3 })]);
+    expect(diagnostics(report, "error")).toEqual([
+      expect.objectContaining({ code: "too-long", line: 3 }),
+    ]);
   });
 
   it("accepts titles and comments of exactly the maximum length", () => {
@@ -306,73 +415,151 @@ describe("errors abort with nothing written and cite the source line", () => {
 
 describe("warnings", () => {
   it("warns when one key is bound to different actions in a section, and still writes", () => {
-    const report = run(table([["Duplicate line", "Cmd+D", ""], ["Select next", "cmd+d", "multi-cursor"], ["Other", "Cmd+E", ""]]), { write: true });
+    const report = run(
+      table([
+        ["Duplicate line", "Cmd+D", ""],
+        ["Select next", "cmd+d", "multi-cursor"],
+        ["Other", "Cmd+E", ""],
+      ]),
+      { write: true },
+    );
     expect(report.ok).toBe(true);
     expect(report.wrote).toBe(true);
-    expect(diagnostics(report, "warning")).toEqual([expect.objectContaining({ code: "same-key-different-action", line: 4 })]);
+    expect(diagnostics(report, "warning")).toEqual([
+      expect.objectContaining({ code: "same-key-different-action", line: 4 }),
+    ]);
     expect(diagnostics(report, "warning")[0].message).toMatch(/line 3/);
     expect(readApp().keymaps[0].sections[0].shortcuts).toHaveLength(3);
   });
 
   it("does not warn across sections or for alternatives of the same action", () => {
     const markdown = [
-      "## One", "", "| Action | Shortcut |", "| --- | --- |", "| Copy | Cmd+C |", "| copy | Cmd+Y or Cmd+C |", "",
-      "## Two", "", "| Action | Shortcut |", "| --- | --- |", "| Other | Cmd+C |",
+      "## One",
+      "",
+      "| Action | Shortcut |",
+      "| --- | --- |",
+      "| Copy | Cmd+C |",
+      "| copy | Cmd+Y or Cmd+C |",
+      "",
+      "## Two",
+      "",
+      "| Action | Shortcut |",
+      "| --- | --- |",
+      "| Other | Cmd+C |",
     ].join("\n");
     const report = run(markdown);
     expect(diagnostics(report, "warning")).toEqual([]);
   });
 
   it("is not raised for sequences that merely share a first chord", () => {
-    expect(diagnostics(run(table([["A", "cmd+k cmd+s", ""], ["B", "cmd+k", ""]])), "warning")).toEqual([]);
+    expect(
+      diagnostics(
+        run(
+          table([
+            ["A", "cmd+k cmd+s", ""],
+            ["B", "cmd+k", ""],
+          ]),
+        ),
+        "warning",
+      ),
+    ).toEqual([]);
   });
 });
 
 describe("notices", () => {
   it("collapses exact duplicate rows with a notice citing both lines", () => {
-    const report = run(table([["Copy", "Cmd+C", ""], ["Paste", "Cmd+V", ""], ["copy", "⌘C", ""]]), { write: true });
+    const report = run(
+      table([
+        ["Copy", "Cmd+C", ""],
+        ["Paste", "Cmd+V", ""],
+        ["copy", "⌘C", ""],
+      ]),
+      { write: true },
+    );
     expect(report.ok).toBe(true);
-    expect(entries(report).map(entry => entry.key)).toEqual(["cmd+c", "cmd+v"]);
-    const notice = diagnostics(report, "notice").find(d => d.code === "duplicate-row");
+    expect(entries(report).map((entry) => entry.key)).toEqual([
+      "cmd+c",
+      "cmd+v",
+    ]);
+    const notice = diagnostics(report, "notice").find(
+      (d) => d.code === "duplicate-row",
+    );
     expect(notice).toMatchObject({ line: 5 });
     expect(notice?.message).toMatch(/line 3/);
-    expect(readApp().keymaps[0].sections[0].shortcuts).toEqual([{ title: "Copy", key: "cmd+c" }, { title: "Paste", key: "cmd+v" }]);
+    expect(readApp().keymaps[0].sections[0].shortcuts).toEqual([
+      { title: "Copy", key: "cmd+c" },
+      { title: "Paste", key: "cmd+v" },
+    ]);
     expect(report.changes.added).toBe(2);
   });
 
   it("collapses duplicates inside one cell", () => {
     const report = cell("Cmd+K or Cmd+K");
     expect(keys(report)).toEqual(["cmd+k"]);
-    expect(diagnostics(report, "notice").filter(d => d.code === "duplicate-row")).toHaveLength(1);
+    expect(
+      diagnostics(report, "notice").filter((d) => d.code === "duplicate-row"),
+    ).toHaveLength(1);
   });
 
   it("keeps rows with the same key and action but a different comment", () => {
-    const report = run(table([["Copy", "Cmd+C", "a"], ["Copy", "Cmd+C", "b"]]));
+    const report = run(
+      table([
+        ["Copy", "Cmd+C", "a"],
+        ["Copy", "Cmd+C", "b"],
+      ]),
+    );
     expect(entries(report)).toHaveLength(2);
-    expect(diagnostics(report, "notice").filter(d => d.code === "duplicate-row")).toEqual([]);
+    expect(
+      diagnostics(report, "notice").filter((d) => d.code === "duplicate-row"),
+    ).toEqual([]);
   });
 
   it("collapses a duplicate before merging so an existing app sees it once", () => {
     run(table([["Copy", "Cmd+C", ""]]), { write: true });
-    const report = run(table([["Copy", "Cmd+C", ""], ["Copy", "Cmd+C", ""], ["Paste", "Cmd+V", ""]]), { write: true });
-    expect(report.changes).toEqual({ added: 1, alternatives: 0, unchanged: 1, conflicts: 0 });
+    const report = run(
+      table([
+        ["Copy", "Cmd+C", ""],
+        ["Copy", "Cmd+C", ""],
+        ["Paste", "Cmd+V", ""],
+      ]),
+      { write: true },
+    );
+    expect(report.changes).toEqual({
+      added: 1,
+      alternatives: 0,
+      unchanged: 1,
+      conflicts: 0,
+    });
   });
 
   it("imports cmd+^ with a layout-dependent notice", () => {
-    const report = run(table([["Toggle terminal", "cmd+^", ""]]), { write: true });
+    const report = run(table([["Toggle terminal", "cmd+^", ""]]), {
+      write: true,
+    });
     expect(report.ok).toBe(true);
     expect(report.wrote).toBe(true);
-    expect(readApp().keymaps[0].sections[0].shortcuts).toEqual([{ title: "Toggle terminal", key: "cmd+^" }]);
+    expect(readApp().keymaps[0].sections[0].shortcuts).toEqual([
+      { title: "Toggle terminal", key: "cmd+^" },
+    ]);
     expect(report.layoutDependentKeys).toEqual([{ key: "cmd+^", line: 3 }]);
-    expect(diagnostics(report, "notice")).toEqual([expect.objectContaining({ code: "layout-dependent-key", line: 3 })]);
-    expect(diagnostics(report, "notice")[0].message).toMatch(/no execution mapping/i);
+    expect(diagnostics(report, "notice")).toEqual([
+      expect.objectContaining({ code: "layout-dependent-key", line: 3 }),
+    ]);
+    expect(diagnostics(report, "notice")[0].message).toMatch(
+      /no execution mapping/i,
+    );
   });
 
-  it.each(["´", "`", "<", ">", "#", "ß", "ä", "ö", "ü", "§", "°"])("flags %s as layout-dependent", symbol => {
-    const report = cell(`Cmd+${symbol}`);
-    expect(report.ok).toBe(true);
-    expect(report.layoutDependentKeys).toEqual([{ key: `cmd+${symbol}`, line: 3 }]);
-  });
+  it.each(["´", "`", "<", ">", "#", "ß", "ä", "ö", "ü", "§", "°"])(
+    "flags %s as layout-dependent",
+    (symbol) => {
+      const report = cell(`Cmd+${symbol}`);
+      expect(report.ok).toBe(true);
+      expect(report.layoutDependentKeys).toEqual([
+        { key: `cmd+${symbol}`, line: 3 },
+      ]);
+    },
+  );
 
   it("lowercases layout-dependent letters", () => {
     expect(keys(cell("Cmd+Ä"))).toEqual(["cmd+ä"]);
@@ -384,20 +571,45 @@ describe("notices", () => {
 
   it("lists each layout-dependent entry with its line when merging into an existing app", () => {
     run(table([["Toggle terminal", "cmd+^", ""]]), { write: true });
-    const report = run(table([["Toggle terminal", "cmd+^", ""], ["Other", "cmd+#", ""]]), { write: true });
-    expect(report.layoutDependentKeys).toEqual([{ key: "cmd+^", line: 3 }, { key: "cmd+#", line: 4 }]);
+    const report = run(
+      table([
+        ["Toggle terminal", "cmd+^", ""],
+        ["Other", "cmd+#", ""],
+      ]),
+      { write: true },
+    );
+    expect(report.layoutDependentKeys).toEqual([
+      { key: "cmd+^", line: 3 },
+      { key: "cmd+#", line: 4 },
+    ]);
     expect(report.changes).toMatchObject({ added: 1, unchanged: 1 });
   });
 });
 
 describe("written output", () => {
   it("is a fixed point of the repo formatter", () => {
-    const report = run(table([
-      ["Toggle", "⇧ ⌘ /", ""], ["Palette", "Cmd+Shift+P or Ctrl-Shift-P", ""], ["Chord", "cmd+k cmd+s", ""], ["Plus", "Cmd++", ""], ["Esc", "Escape", ""],
-    ]), { write: true });
+    const report = run(
+      table([
+        ["Toggle", "⇧ ⌘ /", ""],
+        ["Palette", "Cmd+Shift+P or Ctrl-Shift-P", ""],
+        ["Chord", "cmd+k cmd+s", ""],
+        ["Plus", "Cmd++", ""],
+        ["Esc", "Escape", ""],
+      ]),
+      { write: true },
+    );
     expect(report.ok).toBe(true);
-    expect(readApp().keymaps[0].sections[0].shortcuts.map(shortcut => shortcut.key)).toEqual([
-      "shift+cmd+/", "shift+cmd+p", "ctrl+shift+p", "cmd+k cmd+s", "cmd++", "esc",
+    expect(
+      readApp().keymaps[0].sections[0].shortcuts.map(
+        (shortcut) => shortcut.key,
+      ),
+    ).toEqual([
+      "shift+cmd+/",
+      "shift+cmd+p",
+      "ctrl+shift+p",
+      "cmd+k cmd+s",
+      "cmd++",
+      "esc",
     ]);
   });
 });
