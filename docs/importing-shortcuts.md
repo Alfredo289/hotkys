@@ -63,7 +63,10 @@ Example:
 - A sequence is complete combos separated by whitespace, "then" or commas (`cmd+k cmd+s`).
 - Alternatives for one action share a cell, separated by `or`, `/` between complete combos, or `;`. Each becomes its own adjacent entry with the same title.
 - Uppercase letters never imply Shift. A shifted character is stored as the character itself.
-- Layout-dependent symbols (^ ´ &#96; < > # ß ä ö ü § °) are valid. They have no execution mapping, and the preview lists them.
+- Markdown escapes such as `\=` are removed. Keys can be written as `<kbd>` tags or inline code.
+- The key itself can be `+` or `-` when that is unambiguous: `Cmd++`, `Cmd--` and `⌘ +` work, a trailing `Cmd+` does not. A `/` right after a modifier is the `/` key (`⌘/`), but `Ctrl/Cmd` is an error.
+- `Alt` is only accepted in Windows imports (in a macOS import write `Option` or `Control`), and `Cmd` is rejected in Windows imports.
+- Layout-dependent symbols (^ ´ &#96; < > # ß ä ö ü § °) are valid in macOS imports. They have no execution mapping, and the preview lists them.
 - macOS keymaps allow `ctrl`, `shift`, `opt`/`alt`, `cmd`; Windows keymaps allow `ctrl`, `shift`, `alt`, `win`. Never `cmd`/`opt` on Windows.
 
 ## The import CLI

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { extractTables } from "./markdown-table";
 import { planMerge } from "./merge";
+import { createKeyChecker } from "./key-check";
 import { planNewApp } from "./plan";
 import { validateCandidate, writeAppFile } from "./publish";
 import type { InputApp } from "../model/input/input-models";
@@ -63,11 +64,12 @@ export function importShortcuts(catalogRoot: string, request: ImportRequest): Im
   }
   if (!tables.rows.length) return finish();
 
-  const imported = planNewApp(request, tables.rows);
+  const imported = planNewApp(request, tables.rows, createKeyChecker(catalogRoot, request.platform));
   const plan = existing && !imported.diagnostics.some(diagnostic => diagnostic.severity === "error") ? planMerge(existing, request, imported) : imported;
   report.diagnostics.push(...plan.diagnostics);
   report.preview = plan.preview;
   report.changes = plan.changes;
+  report.layoutDependentKeys = plan.layoutDependentKeys;
   if (report.diagnostics.some(diagnostic => diagnostic.severity === "error")) return finish();
   if (existing && "changed" in plan && !plan.changed) {
     report.diagnostics.push({ severity: "notice", code: "no-changes", message: "The app already contains everything in the import; nothing to write." });

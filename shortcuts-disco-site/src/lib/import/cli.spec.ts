@@ -39,7 +39,7 @@ it("writes with --write and emits the report with --json", () => {
 });
 
 it("exits 1 with the error in the JSON report when validation fails, writing nothing", () => {
-  fs.writeFileSync(table, "| Action | Shortcut |\n|---|---|\n| Copy | cmd+nonsense |\n");
+  catalog.seed({ $schema: "https://hotkys.com/schema/shortcut.schema.json", name: "Broken", slug: "broken", keymaps: [{ title: "Default", platforms: ["macos"], sections: [{ title: "General", shortcuts: [{ title: "Copy", key: "cmd+nonsense" }] }] }] });
   const before = catalog.snapshot();
   const result = run(...base(), "--write", "--json");
   expect(result.status).toBe(1);

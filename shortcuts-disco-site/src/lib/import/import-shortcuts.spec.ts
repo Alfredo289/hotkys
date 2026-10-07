@@ -143,12 +143,21 @@ describe("markdown extraction", () => {
 });
 
 describe("whole-catalog validation", () => {
-  it("writes nothing and reports the error for an invalid key", () => {
+  it("writes nothing and reports the error when another app in the catalog is invalid", () => {
+    catalog.seed({ $schema: "https://hotkys.com/schema/shortcut.schema.json", name: "Broken", slug: "broken", keymaps: [{ title: "Default", platforms: ["macos"], sections: [{ title: "General", shortcuts: [{ title: "Copy", key: "cmd+nonsense" }] }] }] });
     const before = catalog.snapshot();
-    const report = importShortcuts(catalog.root, request({ markdown: "| Action | Shortcut |\n|---|---|\n| Copy | cmd+nonsense |", write: true }));
+    const report = importShortcuts(catalog.root, request({ write: true }));
     expect(report.ok).toBe(false);
     expect(report.wrote).toBe(false);
     expect(errors(report)).toEqual([expect.objectContaining({ code: "catalog-validation" })]);
+    expect(catalog.snapshot()).toEqual(before);
+  });
+
+  it("reports an unsupported key on its source line before validating the catalog", () => {
+    const before = catalog.snapshot();
+    const report = importShortcuts(catalog.root, request({ markdown: "| Action | Shortcut |\n|---|---|\n| Copy | cmd+nonsense |", write: true }));
+    expect(report.wrote).toBe(false);
+    expect(errors(report)).toEqual([expect.objectContaining({ code: "unsupported-key", line: 3 })]);
     expect(catalog.snapshot()).toEqual(before);
   });
 

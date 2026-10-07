@@ -281,8 +281,9 @@ describe("--overwrite", () => {
 describe("validation", () => {
   it("rejects a merge that makes the catalog invalid and writes nothing", () => {
     codexLike();
+    catalog.seed({ $schema: "https://hotkys.com/schema/shortcut.schema.json", name: "Broken", slug: "broken", keymaps: [{ title: "Default", platforms: ["macos"], sections: [{ title: "General", shortcuts: [{ title: "Copy", key: "cmd+nonsense" }] }] }] });
     const before = catalog.snapshot();
-    const report = importShortcuts(catalog.root, request({ markdown: table("| General | Bad | cmd+nonsense | |"), write: true }));
+    const report = importShortcuts(catalog.root, request({ markdown: table("| General | New | cmd+j | |"), write: true }));
     expect(errors(report)).toEqual([expect.objectContaining({ code: "catalog-validation" })]);
     expect(catalog.snapshot()).toEqual(before);
   });

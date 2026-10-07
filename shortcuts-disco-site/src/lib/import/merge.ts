@@ -57,7 +57,7 @@ export function planMerge(existing: InputApp, request: ImportRequest, imported: 
   const app = existing;
   const diagnostics: Diagnostic[] = [...imported.diagnostics];
   const target = resolveTarget(app, request);
-  if ("error" in target) return { app, preview: imported.preview, changes: imported.changes, diagnostics: [...diagnostics, target.error], changed: false };
+  if ("error" in target) return { app, preview: imported.preview, changes: imported.changes, diagnostics: [...diagnostics, target.error], layoutDependentKeys: imported.layoutDependentKeys, changed: false };
 
   const { keymap } = target;
   const previewSections = imported.preview.sections.map(section => ({ ...section, entries: section.entries.map(entry => ({ ...entry })) }));
@@ -74,7 +74,7 @@ export function planMerge(existing: InputApp, request: ImportRequest, imported: 
   const finish = (): MergePlan => {
     if (!target.exists) app.keymaps.push(keymap);
     const preview: ImportPreview = { keymap: keymap.title, platforms: keymap.platforms ?? [], sections: previewSections };
-    return { app, preview, changes, diagnostics, changed: !target.exists || JSON.stringify(keymap) !== before };
+    return { app, preview, changes, diagnostics, layoutDependentKeys: imported.layoutDependentKeys, changed: !target.exists || JSON.stringify(keymap) !== before };
   };
 
   if (request.overwrite) {
