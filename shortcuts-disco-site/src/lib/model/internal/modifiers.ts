@@ -1,4 +1,5 @@
 import { Platform } from "./internal-models";
+import { modifierRank } from "@/lib/shortcut-core/platforms";
 
 export enum Modifiers {
     control = "control down",
@@ -82,12 +83,7 @@ export const modifierMapping: Map<string, Modifiers> = new Map([
 
 export const modifierTokens: string[] = ["ctrl", "shift", "opt", "alt", "cmd", "win"];
 
-// Create a special order mapping that treats 'opt' and 'alt' as the same position
-export const modifierTokensOrderMapping: Map<string, number> = new Map([
-    ["ctrl", 0],
-    ["shift", 1],
-    ["opt", 2],
-    ["alt", 2],  // Same position as 'opt'
-    ["cmd", 3],
-    ["win", 4],
-]);
+// Display order of modifier tokens, derived from the shared platform order (opt and alt share a position).
+export const modifierTokensOrderMapping: Map<string, number> = new Map(
+    modifierTokens.map(token => [token, modifierRank("linux", token)]),
+);

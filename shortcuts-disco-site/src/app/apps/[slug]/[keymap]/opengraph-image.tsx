@@ -9,6 +9,7 @@ import {
   SectionShortcut,
 } from "@/lib/model/internal/internal-models";
 import { Modifiers } from "@/lib/model/internal/modifiers";
+import { isLayoutDependentKey } from "@/lib/shortcut-core/keyboard-layouts";
 
 export const dynamic = "force-static";
 
@@ -45,6 +46,7 @@ const baseKeySymbols: Record<string, string> = {
 };
 
 function formatBaseKey(base: string): string {
+  if (isLayoutDependentKey(base)) return base;
   return baseKeySymbols[base] ?? base.toUpperCase();
 }
 

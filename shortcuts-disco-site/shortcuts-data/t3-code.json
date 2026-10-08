@@ -1,0 +1,425 @@
+{
+  "$schema": "https://hotkys.com/schema/shortcut.schema.json",
+  "bundleId": "com.t3tools.t3code",
+  "name": "T3 Code",
+  "slug": "t3-code",
+  "source": "https://t3.codes",
+  "keymaps": [
+    {
+      "title": "Default",
+      "platforms": [
+        "macos"
+      ],
+      "sections": [
+        {
+          "title": "Terminal",
+          "shortcuts": [
+            {
+              "title": "Toggle terminal",
+              "key": "cmd+j"
+            },
+            {
+              "title": "Split terminal",
+              "key": "cmd+d",
+              "comment": "Terminal focused"
+            },
+            {
+              "title": "Split terminal vertically",
+              "key": "shift+cmd+d",
+              "comment": "Terminal focused"
+            },
+            {
+              "title": "New terminal",
+              "key": "cmd+n",
+              "comment": "Terminal focused"
+            },
+            {
+              "title": "Close terminal",
+              "key": "cmd+w",
+              "comment": "Terminal focused"
+            }
+          ]
+        },
+        {
+          "title": "Diff",
+          "shortcuts": [
+            {
+              "title": "Toggle diff",
+              "key": "cmd+d",
+              "comment": "Terminal not focused"
+            }
+          ]
+        },
+        {
+          "title": "Preview",
+          "shortcuts": [
+            {
+              "title": "Toggle preview",
+              "key": "shift+cmd+j"
+            },
+            {
+              "title": "Refresh preview",
+              "key": "cmd+r",
+              "comment": "Preview focused"
+            },
+            {
+              "title": "Focus preview URL",
+              "key": "cmd+l",
+              "comment": "Preview focused"
+            },
+            {
+              "title": "Reset preview zoom",
+              "key": "cmd+0",
+              "comment": "Preview focused"
+            },
+            {
+              "title": "Zoom in preview",
+              "key": "shift+cmd+]",
+              "comment": "Preview focused"
+            },
+            {
+              "title": "Zoom out preview",
+              "key": "cmd+/",
+              "comment": "Preview focused"
+            }
+          ]
+        },
+        {
+          "title": "Chat",
+          "shortcuts": [
+            {
+              "title": "Toggle command palette",
+              "key": "cmd+k",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "New chat",
+              "key": "cmd+n",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "New chat",
+              "key": "shift+cmd+o",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "New local chat",
+              "key": "shift+cmd+n",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "New chat without project",
+              "key": "opt+cmd+n",
+              "comment": "Terminal not focused"
+            }
+          ]
+        },
+        {
+          "title": "Composer",
+          "shortcuts": [
+            {
+              "title": "Stash composer draft",
+              "key": "cmd+s",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Choose host",
+              "key": "shift+cmd+h",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Choose effort",
+              "key": "shift+cmd+e",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Choose mode",
+              "key": "shift+cmd+a",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Choose workspace",
+              "key": "shift+cmd+x",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Choose branch",
+              "key": "shift+cmd+g",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Choose previous worktree",
+              "key": "shift+cmd+l",
+              "comment": "Terminal not focused"
+            }
+          ]
+        },
+        {
+          "title": "Model picker",
+          "shortcuts": [
+            {
+              "title": "Toggle model picker",
+              "key": "shift+cmd+m",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Jump to model 1",
+              "key": "cmd+1",
+              "comment": "Model picker open"
+            },
+            {
+              "title": "Jump to model 2",
+              "key": "cmd+2",
+              "comment": "Model picker open"
+            },
+            {
+              "title": "Jump to model 3",
+              "key": "cmd+3",
+              "comment": "Model picker open"
+            },
+            {
+              "title": "Jump to model 4",
+              "key": "opt+cmd+4",
+              "comment": "Model picker open; ¢ = Option+4 (DE)"
+            },
+            {
+              "title": "Jump to model 5",
+              "key": "cmd+5",
+              "comment": "Model picker open"
+            },
+            {
+              "title": "Jump to model 6",
+              "key": "cmd+6",
+              "comment": "Model picker open"
+            },
+            {
+              "title": "Jump to model 7",
+              "key": "cmd+7",
+              "comment": "Model picker open"
+            },
+            {
+              "title": "Jump to model 8",
+              "key": "cmd+8",
+              "comment": "Model picker open"
+            },
+            {
+              "title": "Jump to model 9",
+              "key": "cmd+9",
+              "comment": "Model picker open"
+            },
+            {
+              "title": "Previous provider",
+              "key": "shift+cmd+up",
+              "comment": "Model picker open"
+            },
+            {
+              "title": "Next provider",
+              "key": "shift+cmd+down",
+              "comment": "Model picker open"
+            }
+          ]
+        },
+        {
+          "title": "Editor",
+          "shortcuts": [
+            {
+              "title": "Open in favorite editor",
+              "key": "cmd+o"
+            }
+          ]
+        },
+        {
+          "title": "Search",
+          "shortcuts": [
+            {
+              "title": "Toggle file picker",
+              "key": "cmd+p",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Toggle project search",
+              "key": "shift+cmd+f",
+              "comment": "Terminal not focused"
+            }
+          ]
+        },
+        {
+          "title": "Appearance",
+          "shortcuts": [
+            {
+              "title": "Toggle theme editor",
+              "key": "shift+opt+cmd+t"
+            },
+            {
+              "title": "Select theme",
+              "key": "opt+cmd+a",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Cycle appearance",
+              "key": "shift+opt+cmd+a",
+              "comment": "Terminal not focused"
+            }
+          ]
+        },
+        {
+          "title": "Threads",
+          "shortcuts": [
+            {
+              "title": "Jump to thread 1",
+              "key": "ctrl+1"
+            },
+            {
+              "title": "Jump to thread 2",
+              "key": "ctrl+2"
+            },
+            {
+              "title": "Jump to thread 3",
+              "key": "ctrl+3"
+            },
+            {
+              "title": "Jump to thread 4",
+              "key": "ctrl+4"
+            },
+            {
+              "title": "Jump to thread 5",
+              "key": "ctrl+5"
+            },
+            {
+              "title": "Jump to thread 6",
+              "key": "ctrl+6"
+            },
+            {
+              "title": "Jump to thread 7",
+              "key": "ctrl+7"
+            },
+            {
+              "title": "Jump to thread 8",
+              "key": "ctrl+8"
+            },
+            {
+              "title": "Jump to thread 9",
+              "key": "ctrl+9"
+            },
+            {
+              "title": "Next thread",
+              "key": "shift+cmd+ä"
+            },
+            {
+              "title": "Previous thread",
+              "key": "shift+cmd+ö"
+            },
+            {
+              "title": "Steer queued message",
+              "key": "shift+cmd+enter",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Copy pull request number",
+              "key": "shift+cmd+k",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Copy thread reference",
+              "key": "shift+cmd+c",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Settle thread",
+              "key": "shift+cmd+s",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Pin thread",
+              "key": "shift+cmd+p",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Undo in thread",
+              "key": "cmd+z",
+              "comment": "Terminal and text fields not focused"
+            }
+          ]
+        },
+        {
+          "title": "Panels",
+          "shortcuts": [
+            {
+              "title": "Toggle right panel",
+              "key": "cmd+4"
+            },
+            {
+              "title": "Toggle sidebar",
+              "key": "cmd+b"
+            },
+            {
+              "title": "Close right panel",
+              "key": "cmd+w",
+              "comment": "Terminal not focused"
+            }
+          ]
+        },
+        {
+          "title": "Navigation",
+          "shortcuts": [
+            {
+              "title": "Navigate back",
+              "key": "cmd+[",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Navigate forward",
+              "key": "cmd+]",
+              "comment": "Terminal not focused"
+            }
+          ]
+        },
+        {
+          "title": "Usage",
+          "shortcuts": [
+            {
+              "title": "Open usage",
+              "key": "cmd+u",
+              "comment": "Terminal not focused"
+            },
+            {
+              "title": "Show cost",
+              "key": "c",
+              "comment": "Usage page open"
+            },
+            {
+              "title": "Show tokens",
+              "key": "t",
+              "comment": "Usage page open"
+            },
+            {
+              "title": "Show limits",
+              "key": "l",
+              "comment": "Usage page open"
+            },
+            {
+              "title": "Usage period: day",
+              "key": "shift+cmd+1",
+              "comment": "Usage page open"
+            },
+            {
+              "title": "Usage period: week",
+              "key": "shift+cmd+2",
+              "comment": "Usage page open"
+            },
+            {
+              "title": "Usage period: month",
+              "key": "shift+cmd+3",
+              "comment": "Usage page open"
+            },
+            {
+              "title": "Usage period: quarter",
+              "key": "shift+cmd+4",
+              "comment": "Usage page open"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

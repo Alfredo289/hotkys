@@ -231,8 +231,7 @@ export default function Page() {
               Copy Current App’s Bundle ID
             </dt>
             <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              Copy an app’s identifier when contributing new shortcuts to
-              Hotkys.
+              Copy an app’s identifier when adding shortcuts to the catalog.
             </dd>
           </div>
         </dl>

@@ -1,6 +1,20 @@
 "use client";
-import { useAccountData } from "@/components/auth/account-data-provider";
+
+import { useCallback } from "react";
+import { useHydrated, useLocalStore } from "@/lib/storage/local-store";
+import {
+  preferencesStore,
+  type Preferences,
+} from "@/lib/storage/preferences-store";
+
+/** Display preferences, kept in local storage and shared by every component. */
 export function usePreferences() {
-  const account = useAccountData();
-  return { preferences: account.data.preferences, isLoading: account.loading, error: account.errors.preferences, refetch: account.refetch, updatePreferences: account.updatePreferences };
+  const preferences = useLocalStore(preferencesStore);
+  const hydrated = useHydrated();
+  const updatePreferences = useCallback(
+    async (patch: Partial<Preferences>) =>
+      preferencesStore.update((current) => ({ ...current, ...patch })),
+    [],
+  );
+  return { preferences, isLoading: !hydrated, updatePreferences };
 }

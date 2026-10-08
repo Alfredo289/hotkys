@@ -60,6 +60,10 @@
               "key": "cmd+b"
             },
             {
+              "title": "Toggle sidebar",
+              "key": "cmd+^"
+            },
+            {
               "title": "Toggle bottom panel",
               "key": "cmd+j"
             },
@@ -511,7 +515,7 @@
             },
             {
               "title": "New standalone chat",
-              "key": "ctrl+opt+o"
+              "key": "ctrl+alt+o"
             },
             {
               "title": "Archive chat",
@@ -523,15 +527,15 @@
             },
             {
               "title": "Pin or unpin chat",
-              "key": "ctrl+opt+p"
+              "key": "ctrl+alt+p"
             },
             {
               "title": "Rename chat",
-              "key": "ctrl+opt+r"
+              "key": "ctrl+alt+r"
             },
             {
               "title": "Open side chat",
-              "key": "ctrl+opt+s"
+              "key": "ctrl+alt+s"
             },
             {
               "title": "Search chats",
@@ -575,31 +579,31 @@
             },
             {
               "title": "Next chat needing attention",
-              "key": "ctrl+opt+a"
+              "key": "ctrl+alt+a"
             },
             {
               "title": "Open recent chat 1",
-              "key": "ctrl+opt+1"
+              "key": "ctrl+alt+1"
             },
             {
               "title": "Open recent chat 2",
-              "key": "ctrl+opt+2"
+              "key": "ctrl+alt+2"
             },
             {
               "title": "Open recent chat 3",
-              "key": "ctrl+opt+3"
+              "key": "ctrl+alt+3"
             },
             {
               "title": "Open recent chat 4",
-              "key": "ctrl+opt+4"
+              "key": "ctrl+alt+4"
             },
             {
               "title": "Open recent chat 5",
-              "key": "ctrl+opt+5"
+              "key": "ctrl+alt+5"
             },
             {
               "title": "Open recent chat 6",
-              "key": "ctrl+opt+6"
+              "key": "ctrl+alt+6"
             },
             {
               "title": "Go to chat 1",
@@ -648,7 +652,7 @@
             },
             {
               "title": "Open project picker",
-              "key": "ctrl+shift+opt+o"
+              "key": "ctrl+shift+alt+o"
             },
             {
               "title": "Start voice chat",
@@ -677,19 +681,19 @@
             },
             {
               "title": "Switch to Chat",
-              "key": "opt+1"
+              "key": "alt+1"
             },
             {
               "title": "Switch to Work",
-              "key": "opt+2"
+              "key": "alt+2"
             },
             {
               "title": "Switch to Codex",
-              "key": "opt+3"
+              "key": "alt+3"
             },
             {
               "title": "Toggle Activity view",
-              "key": "ctrl+opt+u",
+              "key": "ctrl+alt+u",
               "comment": "When Activity is available"
             }
           ]
@@ -716,7 +720,7 @@
             },
             {
               "title": "Switch between chat and tabs",
-              "key": "ctrl+opt+b",
+              "key": "ctrl+alt+b",
               "comment": "In full view; toggles tabs in split view"
             },
             {
@@ -740,12 +744,12 @@
             },
             {
               "title": "Browser back",
-              "key": "opt+left",
+              "key": "alt+left",
               "comment": "When the built-in browser is focused"
             },
             {
               "title": "Browser forward",
-              "key": "opt+right",
+              "key": "alt+right",
               "comment": "When the built-in browser is focused"
             },
             {
@@ -770,11 +774,11 @@
             },
             {
               "title": "Copy chat deep link",
-              "key": "ctrl+opt+l"
+              "key": "ctrl+alt+l"
             },
             {
               "title": "Copy session ID",
-              "key": "ctrl+opt+c"
+              "key": "ctrl+alt+c"
             },
             {
               "title": "Copy working directory",

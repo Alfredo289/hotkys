@@ -44,8 +44,5 @@ public/data/linux/
 # Personal TODO
 TODO.md
 
-# Supabase CLI cache
-/supabase/.temp/
-
 /public/schema/shortcut.schema.json
 /public/.hotkys-generation-*/

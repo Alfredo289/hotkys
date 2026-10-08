@@ -1,16 +1,15 @@
-import { getWindowsKeyNames } from "../shortcuts-raycast-extension/src/load/windows-key-names";
+import { getWindowsKeyNames } from "../shared/shortcuts-core/windows-keys";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { setTimeout as pause } from "node:timers/promises";
-import { exportService } from "../shortcuts-disco-site/src/lib/services/export-service";
 import { generateCatalog } from "../shortcuts-disco-site/src/lib/write/catalog-pipeline";
 import { watchCatalog } from "../shortcuts-disco-site/src/lib/write/watcher";
 import { ShortcutsParser as WebsiteParser } from "../shortcuts-disco-site/src/lib/load/input-parser";
 import { ShortcutsParser as RaycastParser } from "../shortcuts-raycast-extension/src/load/input-parser";
 import { getBaseShortcutId } from "../shortcuts-disco-site/src/lib/shortcut-core/identity";
-import type { CustomApp } from "../shortcuts-disco-site/src/lib/model/user/user-models";
+import type { InputApp } from "../shortcuts-disco-site/src/lib/model/input/input-models";
 async function main() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "hotkys-roundtrip-"));
   let watcher: ReturnType<typeof watchCatalog> | undefined;
@@ -23,9 +22,8 @@ async function main() {
     fs.copyFileSync("shortcuts-data/schema/shortcut.schema.json", path.join(source, "schema/shortcut.schema.json"));
     fs.copyFileSync("public/data/key-codes.json", path.join(root, "public/data/key-codes.json"));
     for (const kind of ["desktop", "web"] as const) {
-      const app: CustomApp = { id: "private-app", userId: "private-owner", slug: `example-${kind}`, name: `Example ${kind}`, ...(kind === "desktop" ? { bundleId: "com.example.Fixture" } : { hostname: "example.com" }), source: "https://example.com/shortcuts", keymaps: [{ id: "private-keymap", title: "Default", platforms: ["macos", "linux"], sections: [{ id: "private-section", keymapId: "private-keymap", title: "General", sortOrder: 0, shortcuts: [{ id: "private-shortcut", title: "Zoom", key: "cmd++ cmd+c", isDeleted: false, sortOrder: 0 }] }] }] };
-      const exported = exportService.exportCustomApp(app);
-      assert.ok(!exported.json.includes("private-")); save(app.slug, exported.app);
+      const app: InputApp = { $schema: "https://hotkys.com/schema/shortcut.schema.json", name: `Example ${kind}`, slug: `example-${kind}`, ...(kind === "desktop" ? { bundleId: "com.example.Fixture" } : { hostname: "example.com" }), source: "https://example.com/shortcuts", keymaps: [{ title: "Default", platforms: ["macos", "linux"], sections: [{ title: "General", shortcuts: [{ title: "Zoom", key: "cmd++ cmd+c" }] }] }] };
+      save(app.slug, app);
     }
     generateCatalog(root);
     const combined = read("data/combined-apps.json").list;
@@ -53,7 +51,7 @@ async function main() {
     watcher = watchCatalog(root); await watcher.ready;
     const added = { ...combined[0], $schema: "https://hotkys.com/schema/shortcut.schema.json", slug: "added", name: "Added", bundleId: "com.example.Added" };
     save("added", added); await until(() => read("data/macos/apps.json").apps.some((app: { slug: string }) => app.slug === "added"));
-    added.keymaps[0].platforms = ["windows"]; save("added", added);
+    added.keymaps = [{ title: "Default", platforms: ["windows"], sections: [{ title: "General", shortcuts: [{ title: "Zoom", key: "ctrl+c" }] }] }]; save("added", added);
     await until(() => !fs.existsSync(path.join(root, "public/data/macos/added.json")) && fs.existsSync(path.join(root, "public/data/windows/added.json")));
     fs.unlinkSync(path.join(source, "added.json")); await until(() => !fs.existsSync(path.join(root, "public/data/windows/added.json")));
     const schema = read("schema/shortcut.schema.json"); schema.title = "Watcher schema test";
@@ -65,7 +63,7 @@ async function main() {
     fs.writeFileSync(path.join(root, "public/data/key-codes.json"), codes);
     await until(() => fs.existsSync(path.join(root, "public/data/macos/example-desktop.json")));
     assert.equal(fs.readFileSync(path.join(root, "public/data/key-codes.json"), "utf8"), codes);
-    console.log("Desktop/web export and Windows execution metadata → catalog → both consumers and real watcher add/change/delete/schema/key-code checks passed.");
+    console.log("Desktop/web catalog files and Windows execution metadata → catalog → both consumers and real watcher add/change/delete/schema/key-code checks passed.");
   } finally { await watcher?.close(); fs.rmSync(root, { recursive: true, force: true }); }
 }
 void main().catch(error => { console.error(error); process.exitCode = 1; });

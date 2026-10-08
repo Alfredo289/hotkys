@@ -9,12 +9,12 @@ import { createCanonical, createOpenGraph } from "@/lib/seo-utils";
 export const metadata: Metadata = {
   title: "About Hotkys - Keyboard Shortcuts Database",
   description:
-    "Hotkys is an open-source keyboard shortcuts database for macOS, Windows, and Linux applications. Learn how to contribute and improve your productivity.",
+    "Hotkys is an open-source keyboard shortcuts database for macOS, Windows, and Linux applications. Browse and search them in one place.",
   alternates: createCanonical("/about"),
   openGraph: createOpenGraph(
     "/about",
     "About Hotkys - Keyboard Shortcuts Database",
-    "Hotkys is an open-source keyboard shortcuts database for macOS, Windows, and Linux applications. Learn how to contribute and improve your productivity.",
+    "Hotkys is an open-source keyboard shortcuts database for macOS, Windows, and Linux applications. Browse and search them in one place.",
   ),
 };
 
@@ -103,9 +103,9 @@ export default function About() {
             you can spend less time hunting through menus.
           </p>
           <p>
-            Find your app, choose your platform, and try something new. Sign in
-            to save your favorites and build a collection that fits the way you
-            work.
+            Find your app, choose your platform, and try something new. Favorite
+            the shortcuts you are learning to build a collection that fits the
+            way you work.
           </p>
           <p>
             Prefer to stay at your keyboard? The{" "}
@@ -119,90 +119,6 @@ export default function About() {
             Raycast.
           </p>
         </div>
-      </section>
-
-      <section
-        aria-labelledby="contribute-title"
-        className="grid grid-cols-1 gap-8 rounded-2xl border bg-card p-6 md:p-10 lg:grid-cols-[1fr_1.1fr] lg:gap-12"
-      >
-        <div>
-          <h2
-            id="contribute-title"
-            className="max-w-sm text-2xl leading-tight font-semibold tracking-[-0.035em] md:text-3xl"
-          >
-            Your favorite shortcut belongs here.
-          </h2>
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-            Add an app, fix a shortcut, or fill in a missing platform. Every
-            contribution makes the collection more useful for everyone.
-          </p>
-          <Button
-            asChild
-            variant="outline"
-            className="mt-6 h-auto min-h-9 max-w-full rounded-xl whitespace-normal text-left"
-          >
-            <Link href="https://github.com/solomkinmv/shortcuts-disco#contributing-shortcuts">
-              Read the contribution guide{" "}
-              <ArrowUpRight className="size-4" aria-hidden="true" />
-            </Link>
-          </Button>
-        </div>
-        <ol className="space-y-6">
-          <li className="flex gap-4">
-            <span
-              aria-hidden="true"
-              className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted font-mono text-xs text-muted-foreground"
-            >
-              1
-            </span>
-            <div>
-              <h3 className="text-sm font-semibold">Start with an app</h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Create or edit a JSON file in{" "}
-                <Link
-                  href="https://github.com/solomkinmv/shortcuts-disco/tree/main/shortcuts-disco-site/shortcuts-data"
-                  className="font-mono text-xs text-foreground underline decoration-border underline-offset-4 hover:decoration-brand"
-                >
-                  shortcuts-data
-                </Link>
-                .
-              </p>
-            </div>
-          </li>
-          <li className="flex gap-4">
-            <span
-              aria-hidden="true"
-              className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted font-mono text-xs text-muted-foreground"
-            >
-              2
-            </span>
-            <div className="min-w-0">
-              <h3 className="text-sm font-semibold">Add your shortcuts</h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Include the app’s platforms, key combinations, and the schema
-                below to help your editor validate the file.
-              </p>
-              <code className="mt-3 block rounded-lg bg-muted px-3 py-2 font-mono text-xs leading-relaxed break-words">
-                &quot;$schema&quot;: &quot;schema/shortcut.schema.json&quot;
-              </code>
-            </div>
-          </li>
-          <li className="flex gap-4">
-            <span
-              aria-hidden="true"
-              className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted font-mono text-xs text-muted-foreground"
-            >
-              3
-            </span>
-            <div>
-              <h3 className="text-sm font-semibold">Share it with everyone</h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Open a pull request on GitHub so your changes can join the
-                collection.
-              </p>
-            </div>
-          </li>
-        </ol>
       </section>
     </div>
   );

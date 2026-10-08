@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { MAIN_NAV_LINKS } from "@/lib/constants/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { UserMenu } from "@/components/auth/user-menu";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -21,8 +20,8 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/#applications", label: "Apps" },
   { href: "/favorites", label: "Favorites" },
-  { href: "/my-shortcuts", label: "My shortcuts" },
   ...MAIN_NAV_LINKS,
+  { href: "/add-shortcuts", label: "Add shortcuts" },
 ];
 
 export function Header() {
@@ -74,7 +73,6 @@ export function Header() {
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <UserMenu />
           <Sheet>
             <SheetTrigger asChild>
               <Button

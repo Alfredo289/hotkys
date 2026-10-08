@@ -350,7 +350,7 @@
             },
             {
               "title": "Log out",
-              "key": "shift+opt+q"
+              "key": "shift+alt+q"
             }
           ]
         },
@@ -384,7 +384,7 @@
             },
             {
               "title": "New issue from template",
-              "key": "opt+c"
+              "key": "alt+c"
             },
             {
               "title": "New issue in full screen view",
@@ -464,7 +464,7 @@
             },
             {
               "title": "Clear all issue filters",
-              "key": "shift+opt+f"
+              "key": "shift+alt+f"
             },
             {
               "title": "Copy issue ID",
